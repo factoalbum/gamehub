@@ -8,6 +8,7 @@ import TapTargetPromo from './TapTargetPromo';
 import RecentlyPlayed from './RecentlyPlayed';
 import GameUrlBridge from './GameUrlBridge';
 import ShareScore from './ShareScore';
+import BrickBreakerPromo from './BrickBreakerPromo';
 
 export const metadata: Metadata = {
   title: 'GameHub — Free Browser Games',
@@ -22,5 +23,5 @@ export const viewport: Viewport = {
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return <html lang="en"><body><GameUrlBridge /><DailyChallenge /><MinesweeperPromo /><TapTargetPromo /><RecentlyPlayed /><ShareScore />{children}</body></html>;
+  return <html lang="en"><body><GameUrlBridge /><DailyChallenge /><MinesweeperPromo /><TapTargetPromo /><RecentlyPlayed /><BrickBreakerPromo /><ShareScore />{children}</body></html>;
 }

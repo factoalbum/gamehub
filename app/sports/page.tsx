@@ -3,7 +3,7 @@ import './sports.css';
 
 export const metadata: Metadata = {
   title: '2 Player Sports Games — Play Together | GameHub',
-  description: 'Play free local 2-player sports arcade games in your browser. Basketball, football, volleyball, tennis and air hockey — no download or signup.',
+  description: 'Play free local 2-player sports arcade games in your browser. Basketball, football, volleyball, tennis, air hockey and racing — no download or signup.',
 };
 
 const sports = [
@@ -12,6 +12,7 @@ const sports = [
   { href: '/gamehub/volley-duel/', emoji: '🏐', title: 'Volley Duel', copy: 'Keep the ball alive, find the opening and be first to take the set.', tag: 'VOLLEYBALL' },
   { href: '/gamehub/tennis-duel/', emoji: '🎾', title: 'Tennis Duel', copy: 'A pick-up-and-play tennis rally built for two people on one device.', tag: 'TENNIS' },
   { href: '/gamehub/air-hockey/', emoji: '🏒', title: 'Air Hockey Duel', copy: 'Slide, defend and fire the puck. First to 7 wins the table.', tag: 'HOCKEY' },
+  { href: '/gamehub/racing-duel/', emoji: '🏁', title: 'Racing Duel', copy: 'Race three laps, manage your boost and beat your friend to the finish.', tag: 'RACING' },
 ];
 
 export default function SportsPage() {
@@ -27,7 +28,7 @@ export default function SportsPage() {
         </header>
 
         <section aria-labelledby="sports-list-title">
-          <div className="section-heading"><div><p className="eyebrow">LOCAL MULTIPLAYER</p><h2 id="sports-list-title">Choose your sport</h2></div><span>{sports.length} games</span></div>
+          <div className="section-heading"><div><p className="eyebrow">LOCAL MULTIPLAYER</p><h2 id="sports-list-title">Choose your game</h2></div><span>{sports.length} games</span></div>
           <div className="sports-grid">
             {sports.map((sport) => (
               <a className="sport-card" href={sport.href} key={sport.href}>
@@ -38,8 +39,6 @@ export default function SportsPage() {
             ))}
           </div>
         </section>
-
-        <aside className="sports-next"><span className="next-icon">🏁</span><div><p className="eyebrow">NEXT ON THE TRACK</p><h2>Racing Duel</h2><p>A one-device arcade racer is coming next. Short races, simple controls, instant rematches.</p></div></aside>
       </div>
     </main>
   );

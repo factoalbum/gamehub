@@ -33,7 +33,10 @@ export default function ShareScore({ game, score, label = 'Share score' }: Props
 
   useEffect(() => {
     if (game && score) return;
+    let frame = 0;
+    let scheduled = false;
     const sync = () => {
+      scheduled = false;
       const shell = document.querySelector('.game-shell');
       setVisible(Boolean(shell));
       if (shell) {
@@ -41,10 +44,18 @@ export default function ShareScore({ game, score, label = 'Share score' }: Props
         setCurrentScore(readScore());
       }
     };
+    const scheduleSync = () => {
+      if (scheduled) return;
+      scheduled = true;
+      frame = window.requestAnimationFrame(sync);
+    };
     sync();
-    const observer = new MutationObserver(sync);
+    const observer = new MutationObserver(scheduleSync);
     observer.observe(document.body, { childList: true, subtree: true, characterData: true });
-    return () => observer.disconnect();
+    return () => {
+      observer.disconnect();
+      if (frame) window.cancelAnimationFrame(frame);
+    };
   }, [game, score]);
 
   async function share() {

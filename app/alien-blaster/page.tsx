@@ -6,6 +6,7 @@ import { trackGame } from '../lib/analytics';
 
 type Enemy = { x: number; y: number; vx: number; alive: boolean; row: number };
 type Shot = { x: number; y: number; vy: number };
+type EnemyShot = { x: number; y: number; vy: number };
 const W = 760, H = 520;
 
 function makeWave(wave: number): Enemy[] {
@@ -20,7 +21,7 @@ export default function AlienBlasterPage() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const frameRef = useRef<number | null>(null);
   const fireHeld = useRef(false);
-  const stateRef = useRef({ running: false, score: 0, lives: 3, wave: 1, playerX: W / 2, shots: [] as Shot[], enemies: makeWave(1), enemyDir: 1, cooldown: 0, best: 0 });
+  const stateRef = useRef({ running: false, score: 0, lives: 3, wave: 1, playerX: W / 2, shots: [] as Shot[], enemyShots: [] as EnemyShot[], enemies: makeWave(1), enemyDir: 1, cooldown: 0, enemyFireTimer: 42, hitCooldown: 0, best: 0 });
   const keys = useRef(new Set<string>());
   const [status, setStatus] = useState<'ready' | 'playing' | 'over'>('ready');
   const [score, setScore] = useState(0);
@@ -36,7 +37,7 @@ export default function AlienBlasterPage() {
   const sync = useCallback(() => { const s = stateRef.current; setScore(s.score); setLives(s.lives); setWave(s.wave); }, []);
   const start = useCallback(() => {
     const s = stateRef.current;
-    s.running = true; s.score = 0; s.lives = 3; s.wave = 1; s.playerX = W / 2; s.shots = []; s.enemies = makeWave(1); s.enemyDir = 1; s.cooldown = 0;
+    s.running = true; s.score = 0; s.lives = 3; s.wave = 1; s.playerX = W / 2; s.shots = []; s.enemyShots = []; s.enemies = makeWave(1); s.enemyDir = 1; s.cooldown = 0; s.enemyFireTimer = 42; s.hitCooldown = 0;
     fireHeld.current = false; sync(); setStatus('playing'); trackGame('game_start', 'alien-blaster');
   }, [sync]);
   const shoot = useCallback(() => {
@@ -77,6 +78,8 @@ export default function AlienBlasterPage() {
         if (keys.current.has('right')) s.playerX += 5.5 * dt;
         s.playerX = Math.max(28, Math.min(W - 28, s.playerX));
         s.cooldown = Math.max(0, s.cooldown - dt);
+        s.enemyFireTimer -= dt;
+        s.hitCooldown = Math.max(0, s.hitCooldown - dt);
         if (fireHeld.current) shoot();
         for (const shot of s.shots) shot.y += shot.vy * dt;
         s.shots = s.shots.filter(shot => shot.y > -20);
@@ -84,16 +87,42 @@ export default function AlienBlasterPage() {
         let edge = false;
         for (const e of alive) { e.x += e.vx * s.enemyDir * dt; if (e.x > W - 28 || e.x < 28) edge = true; }
         if (edge) { s.enemyDir *= -1; alive.forEach(e => e.y += 15); }
+        if (s.enemyFireTimer <= 0 && alive.length) {
+          const shooter = alive[Math.floor(Math.random() * alive.length)];
+          s.enemyShots.push({ x: shooter.x, y: shooter.y + 16, vy: 4.1 + Math.min(2.2, s.wave * 0.12) });
+          s.enemyFireTimer = Math.max(20, 62 - s.wave * 2.2);
+        }
+        for (const shot of s.enemyShots) shot.y += shot.vy * dt;
+        s.enemyShots = s.enemyShots.filter(shot => shot.y < H + 24);
         for (const shot of s.shots) for (const enemy of s.enemies) if (enemy.alive && Math.hypot(shot.x - enemy.x, shot.y - enemy.y) < 17) { enemy.alive = false; shot.y = -99; s.score += 10 + (4 - enemy.row) * 3; }
         s.shots = s.shots.filter(shot => shot.y > -50);
+        if (s.hitCooldown <= 0 && s.enemyShots.some(shot => Math.hypot(shot.x - s.playerX, shot.y - (H - 28)) < 24)) {
+          s.enemyShots = s.enemyShots.filter(shot => Math.hypot(shot.x - s.playerX, shot.y - (H - 28)) >= 24);
+          s.lives -= 1;
+          s.hitCooldown = 75;
+          s.playerX = W / 2;
+          s.shots = [];
+          if (s.lives <= 0) {
+            s.running = false;
+            const next = Math.max(s.best, s.score);
+            s.best = next;
+            setBest(next);
+            localStorage.setItem('gamehub:alien-blaster-best', String(next));
+            setStatus('over');
+            trackGame('game_finish', 'alien-blaster', { score: s.score, wave: s.wave });
+          }
+        }
         const breached = s.enemies.some(e => e.alive && e.y > H - 115);
-        if (breached) {
+        if (s.running && breached) {
           s.lives -= 1;
           s.shots = [];
+          s.enemyShots = [];
+          s.hitCooldown = 75;
           if (s.lives > 0) {
             s.enemies = makeWave(s.wave);
             s.enemyDir = 1;
             s.playerX = W / 2;
+            s.enemyFireTimer = 42;
           } else {
             s.running = false;
             const next = Math.max(s.best, s.score);
@@ -104,7 +133,7 @@ export default function AlienBlasterPage() {
             trackGame('game_finish', 'alien-blaster', { score: s.score, wave: s.wave });
           }
         }
-        if (s.running && s.enemies.every(e => !e.alive)) { s.wave++; s.enemies = makeWave(s.wave); s.enemyDir = 1; s.shots = []; }
+        if (s.running && s.enemies.every(e => !e.alive)) { s.wave++; s.enemies = makeWave(s.wave); s.enemyDir = 1; s.shots = []; s.enemyShots = []; s.enemyFireTimer = Math.max(28, 54 - s.wave * 1.5); }
         sync();
       }
       ctx.clearRect(0, 0, W, H);
@@ -112,7 +141,8 @@ export default function AlienBlasterPage() {
       ctx.strokeStyle = 'rgba(120,228,255,.08)'; ctx.lineWidth = 1; for (let x = 20; x < W; x += 38) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke(); } for (let y = 20; y < H; y += 38) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke(); }
       for (const e of s.enemies) if (e.alive) { ctx.fillStyle = e.row % 2 ? '#78e4ff' : '#b7f34a'; ctx.beginPath(); ctx.roundRect(e.x - 15, e.y - 11, 30, 22, 6); ctx.fill(); ctx.fillStyle = '#071019'; ctx.fillRect(e.x - 8, e.y - 3, 5, 5); ctx.fillRect(e.x + 3, e.y - 3, 5, 5); ctx.fillRect(e.x - 5, e.y + 6, 10, 3); }
       ctx.fillStyle = '#f7f9fc'; for (const shot of s.shots) ctx.fillRect(shot.x - 2, shot.y - 9, 4, 12);
-      ctx.fillStyle = '#f7f9fc'; ctx.beginPath(); ctx.moveTo(s.playerX, H - 36); ctx.lineTo(s.playerX - 25, H - 10); ctx.lineTo(s.playerX + 25, H - 10); ctx.closePath(); ctx.fill(); ctx.fillStyle = '#b7f34a'; ctx.fillRect(s.playerX - 4, H - 50, 8, 18);
+      ctx.fillStyle = '#ff7185'; for (const shot of s.enemyShots) { ctx.beginPath(); ctx.roundRect(shot.x - 2, shot.y - 6, 4, 12, 2); ctx.fill(); }
+      if (s.hitCooldown <= 0 || Math.floor(s.hitCooldown / 6) % 2 === 0) { ctx.fillStyle = '#f7f9fc'; ctx.beginPath(); ctx.moveTo(s.playerX, H - 36); ctx.lineTo(s.playerX - 25, H - 10); ctx.lineTo(s.playerX + 25, H - 10); ctx.closePath(); ctx.fill(); ctx.fillStyle = '#b7f34a'; ctx.fillRect(s.playerX - 4, H - 50, 8, 18); }
       if (!s.running) { ctx.fillStyle = 'rgba(5,7,11,.62)'; ctx.fillRect(0, 0, W, H); ctx.fillStyle = '#f7f9fc'; ctx.textAlign = 'center'; ctx.font = '800 32px sans-serif'; ctx.fillText(status === 'over' ? 'GAME OVER' : 'ALIEN BLASTER', W / 2, H / 2 - 12); ctx.font = '600 15px sans-serif'; ctx.fillStyle = '#aeb7c8'; ctx.fillText(status === 'over' ? `Score ${s.score} · Beat ${s.best || '—'}` : 'Clear every wave. Survive as long as you can.', W / 2, H / 2 + 20); }
       frameRef.current = requestAnimationFrame(tick);
     };
@@ -125,5 +155,5 @@ export default function AlienBlasterPage() {
   const pressMove = (side: 'left' | 'right') => keys.current.add(side);
   const releaseMove = (side: 'left' | 'right') => keys.current.delete(side);
 
-  return <main className="alien-page"><div className="alien-shell"><div className="alien-top"><a href="/gamehub/">← GAMES</a><span>☄️ ALIEN BLASTER</span><b>WAVE {wave} · {score} · ❤️ {lives}</b></div><div className="alien-stage"><canvas ref={canvasRef} width={W} height={H} aria-label="Alien Blaster game"/></div><div className="alien-controls"><button onPointerDown={() => pressMove('left')} onPointerUp={() => releaseMove('left')} onPointerCancel={() => releaseMove('left')}>←</button><button className="fire" onPointerDown={pressFire} onPointerUp={releaseFire} onPointerCancel={releaseFire} onPointerLeave={releaseFire}>HOLD FIRE</button><button onPointerDown={() => pressMove('right')} onPointerUp={() => releaseMove('right')} onPointerCancel={() => releaseMove('right')}>→</button></div><div className="alien-actions"><button onClick={start}>{status === 'over' ? 'PLAY AGAIN' : status === 'playing' ? 'RESTART RUN' : 'START GAME'}</button><p>Move with A/D or ← → · Hold Space/F or FIRE · Destroy waves to increase the challenge.</p></div></div></main>;
+  return <main className="alien-page"><div className="alien-shell"><div className="alien-top"><a href="/gamehub/">← GAMES</a><span>☄️ ALIEN BLASTER</span><b>WAVE {wave} · {score} · ❤️ {lives}</b></div><div className="alien-stage"><canvas ref={canvasRef} width={W} height={H} aria-label="Alien Blaster game"/></div><div className="alien-controls"><button onPointerDown={() => pressMove('left')} onPointerUp={() => releaseMove('left')} onPointerCancel={() => releaseMove('left')} onPointerLeave={() => releaseMove('left')}>←</button><button className="fire" onPointerDown={pressFire} onPointerUp={releaseFire} onPointerCancel={releaseFire} onPointerLeave={releaseFire}>HOLD FIRE</button><button onPointerDown={() => pressMove('right')} onPointerUp={() => releaseMove('right')} onPointerCancel={() => releaseMove('right')} onPointerLeave={() => releaseMove('right')}>→</button></div><div className="alien-actions"><button onClick={start}>{status === 'over' ? 'PLAY AGAIN' : status === 'playing' ? 'RESTART RUN' : 'START GAME'}</button><p>Move with A/D or ← → · Hold Space/F or FIRE · Dodge enemy fire · Clear waves to increase the challenge.</p></div></div></main>;
 }

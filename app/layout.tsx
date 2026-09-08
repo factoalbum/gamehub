@@ -1,11 +1,13 @@
 import './globals.css';
 import './polish.css';
+import './share-score.css';
 import type { Metadata, Viewport } from 'next';
 import MinesweeperPromo from './MinesweeperPromo';
 import DailyChallenge from './DailyChallenge';
 import TapTargetPromo from './TapTargetPromo';
 import RecentlyPlayed from './RecentlyPlayed';
 import GameUrlBridge from './GameUrlBridge';
+import ShareScore from './ShareScore';
 
 export const metadata: Metadata = {
   title: 'GameHub — Free Browser Games',
@@ -20,5 +22,5 @@ export const viewport: Viewport = {
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return <html lang="en"><body><GameUrlBridge /><DailyChallenge /><MinesweeperPromo /><TapTargetPromo /><RecentlyPlayed />{children}</body></html>;
+  return <html lang="en"><body><GameUrlBridge /><DailyChallenge /><MinesweeperPromo /><TapTargetPromo /><RecentlyPlayed /><ShareScore />{children}</body></html>;
 }

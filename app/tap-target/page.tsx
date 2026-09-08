@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { trackGame } from '../lib/analytics';
 import './tap-target.css';
 
 type Phase = 'ready' | 'playing' | 'finished';
@@ -26,6 +27,7 @@ export default function TapTargetPage() {
 
   useEffect(() => {
     setBest(Number(localStorage.getItem('gamehub:tap-target-best') || 0));
+    trackGame('game_open', 'tap-target');
   }, []);
 
   const finish = useCallback(() => {
@@ -36,6 +38,7 @@ export default function TapTargetPage() {
         localStorage.setItem('gamehub:tap-target-best', String(next));
         return next;
       });
+      trackGame('game_finish', 'tap-target', { score: current });
       return current;
     });
   }, []);
@@ -56,12 +59,16 @@ export default function TapTargetPage() {
     setTimeLeft(30);
     setTarget(randomTarget(72));
     setPhase('playing');
+    trackGame(phase === 'finished' ? 'game_restart' : 'game_start', 'tap-target');
   }
 
   function hitTarget() {
     if (phase !== 'playing') return;
-    setScore(current => current + 1);
-    setTarget(randomTarget(Math.max(38, 72 - Math.floor(score / 8) * 4)));
+    setScore(current => {
+      const next = current + 1;
+      setTarget(randomTarget(Math.max(38, 72 - Math.floor(next / 8) * 4)));
+      return next;
+    });
   }
 
   return (

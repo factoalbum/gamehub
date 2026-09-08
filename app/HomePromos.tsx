@@ -8,6 +8,7 @@ import RecentlyPlayed from './RecentlyPlayed';
 import './home-promos.css';
 
 const drops = [
+  { emoji: '🏐', label: 'Volley Duel', meta: 'Sports · 2-player volleyball battle', href: '/gamehub/volley-duel/' },
   { emoji: '⚽', label: 'Mini Football', meta: 'Sports · 2-player arcade match', href: '/gamehub/mini-football/' },
   { emoji: '🏀', label: 'Hoop Duel', meta: '2 Player · Basketball battle', href: '/gamehub/hoop-duel/' },
   { emoji: '💣', label: 'Minesweeper', meta: 'Puzzle · Clear the minefield', href: '/gamehub/minesweeper/' },

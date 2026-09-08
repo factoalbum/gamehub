@@ -17,6 +17,7 @@ const catalog: RecentGame[] = [
   { id: 'brick-breaker', title: 'Brick Breaker', emoji: '🧱', href: '/gamehub/brick-breaker/', category: 'Arcade' },
   { id: 'neon-dodge', title: 'Neon Dodge', emoji: '🟣', href: '/gamehub/neon-dodge/', category: 'Arcade' },
   { id: 'hoop-duel', title: 'Hoop Duel', emoji: '🏀', href: '/gamehub/hoop-duel/', category: '2 Player' },
+  { id: 'mini-football', title: 'Mini Football', emoji: '⚽', href: '/gamehub/mini-football/', category: '2 Player' },
 ];
 
 function readRecent() {

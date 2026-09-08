@@ -10,6 +10,7 @@ import GameUrlBridge from './GameUrlBridge';
 import ShareScore from './ShareScore';
 import BrickBreakerPromo from './BrickBreakerPromo';
 import NeonDodgePromo from './NeonDodgePromo';
+import RecentTracker from './RecentTracker';
 
 export const metadata: Metadata = {
   title: 'GameHub — Free Browser Games',
@@ -24,5 +25,5 @@ export const viewport: Viewport = {
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return <html lang="en"><body><GameUrlBridge /><DailyChallenge /><MinesweeperPromo /><TapTargetPromo /><RecentlyPlayed /><BrickBreakerPromo /><NeonDodgePromo /><ShareScore />{children}</body></html>;
+  return <html lang="en"><body><GameUrlBridge /><RecentTracker /><DailyChallenge /><MinesweeperPromo /><TapTargetPromo /><RecentlyPlayed /><BrickBreakerPromo /><NeonDodgePromo /><ShareScore />{children}</body></html>;
 }

@@ -3,6 +3,7 @@ import './polish.css';
 import type { Metadata, Viewport } from 'next';
 import MinesweeperPromo from './MinesweeperPromo';
 import DailyChallenge from './DailyChallenge';
+import TapTargetPromo from './TapTargetPromo';
 
 export const metadata: Metadata = {
   title: 'GameHub — Free Browser Games',
@@ -17,5 +18,5 @@ export const viewport: Viewport = {
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return <html lang="en"><body><DailyChallenge /><MinesweeperPromo />{children}</body></html>;
+  return <html lang="en"><body><DailyChallenge /><MinesweeperPromo /><TapTargetPromo />{children}</body></html>;
 }

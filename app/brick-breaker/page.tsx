@@ -1,8 +1,6 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import '../globals.css';
-import '../polish.css';
 import './brick-breaker.css';
 
 type Brick = { x: number; y: number; alive: boolean; hits: number };
@@ -55,7 +53,8 @@ export default function BrickBreakerPage() {
         if (s.ball.y <= BALL_R) { s.ball.y = BALL_R; s.ball.vy *= -1; }
         const paddleY = HEIGHT - 34;
         if (s.ball.vy > 0 && s.ball.y + BALL_R >= paddleY && s.ball.y - BALL_R <= paddleY + PADDLE_H && s.ball.x >= s.paddleX && s.ball.x <= s.paddleX + PADDLE_W) { const hit = (s.ball.x - (s.paddleX + PADDLE_W / 2)) / (PADDLE_W / 2); const speed = Math.min(8.8, Math.hypot(s.ball.vx, s.ball.vy) * 1.015); s.ball.vx = speed * hit * .9; s.ball.vy = -Math.max(3.3, Math.sqrt(Math.max(1, speed * speed - s.ball.vx * s.ball.vx))); s.ball.y = paddleY - BALL_R - 1; }
-        for (const brick of s.bricks) if (brick.alive) { if (s.ball.x + BALL_R >= brick.x && s.ball.x - BALL_R <= brick.x + brickW && s.ball.y + BALL_R >= brick.y && s.ball.y - BALL_R <= brick.y + 20) { brick.hits -= 1; if (brick.hits <= 0) { brick.alive = false; s.score += 10 * s.level; } else s.score += 4 * s.level; const fromSide = prev.x < brick.x || prev.x > brick.x + brickW; if (fromSide) s.ball.vx *= -1; else s.ball.vy *= -1; break; } }
+        const cols = Math.min(10, 7 + Math.floor((s.level - 1) / 2)), gap = 7, side = 28, brickW = (WIDTH - side * 2 - gap * (cols - 1)) / cols;
+        for (const brick of s.bricks) if (brick.alive && s.ball.x + BALL_R >= brick.x && s.ball.x - BALL_R <= brick.x + brickW && s.ball.y + BALL_R >= brick.y && s.ball.y - BALL_R <= brick.y + 20) { brick.hits -= 1; if (brick.hits <= 0) { brick.alive = false; s.score += 10 * s.level; } else s.score += 4 * s.level; const fromSide = prev.x < brick.x || prev.x > brick.x + brickW; if (fromSide) s.ball.vx *= -1; else s.ball.vy *= -1; break; }
         if (s.bricks.every(b => !b.alive)) { s.level += 1; s.score += 100 * s.level; s.bricks = makeBricks(s.level); resetBall(); }
         if (s.ball.y - BALL_R > HEIGHT) { s.lives -= 1; if (s.lives <= 0) { s.running = false; setStatus('over'); setBest(prevBest => { const next = Math.max(prevBest, s.score); localStorage.setItem('gamehub:brick-breaker-best', String(next)); return next; }); } else resetBall(); }
         sync();

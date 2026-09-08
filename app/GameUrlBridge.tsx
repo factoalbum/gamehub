@@ -14,8 +14,24 @@ const titles: Record<string, string> = {
 function remember(id: string) {
   try {
     const current = JSON.parse(localStorage.getItem('gamehub:recent') || '[]') as string[];
-    localStorage.setItem('gamehub:recent', JSON.stringify([id, ...current.filter(item => item !== id)].slice(0, 5)));
+    const recent = [id, ...current.filter(item => item !== id)].slice(0, 5);
+    localStorage.setItem('gamehub:recent', JSON.stringify(recent));
+    window.dispatchEvent(new CustomEvent('gamehub:recent', { detail: recent }));
   } catch {}
+}
+
+function setGameUrl(id: string, replace = false) {
+  const url = new URL(window.location.href);
+  if (url.searchParams.get('game') === id) return;
+  url.searchParams.set('game', id);
+  window.history[replace ? 'replaceState' : 'pushState']({}, '', url);
+}
+
+function clearGameUrl() {
+  const url = new URL(window.location.href);
+  if (!url.searchParams.has('game')) return;
+  url.searchParams.delete('game');
+  window.history.replaceState({}, '', url);
 }
 
 export default function GameUrlBridge() {
@@ -49,9 +65,31 @@ export default function GameUrlBridge() {
       }
     };
 
+    const handleClick = (event: MouseEvent) => {
+      const target = event.target as HTMLElement | null;
+      const card = target?.closest<HTMLButtonElement>('.game-card');
+      if (card) {
+        const entry = Object.entries(titles).find(([, title]) => card.textContent?.includes(title));
+        if (entry) {
+          const [id] = entry;
+          remember(id);
+          setGameUrl(id);
+        }
+        return;
+      }
+
+      const back = target?.closest<HTMLButtonElement>('.game-top .back');
+      if (back) clearGameUrl();
+    };
+
+    document.addEventListener('click', handleClick, true);
     syncUrl();
     window.addEventListener('popstate', syncUrl);
-    return () => { cancelled = true; window.removeEventListener('popstate', syncUrl); };
+    return () => {
+      cancelled = true;
+      document.removeEventListener('click', handleClick, true);
+      window.removeEventListener('popstate', syncUrl);
+    };
   }, []);
 
   return null;

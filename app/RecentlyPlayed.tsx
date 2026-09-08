@@ -6,12 +6,12 @@ import './recently-played.css';
 type RecentGame = { id: string; title: string; emoji: string; href: string; category: string };
 
 const catalog: RecentGame[] = [
-  { id: 'reflex', title: 'Reflex Rush', emoji: '⚡', href: '/gamehub/', category: 'Arcade' },
-  { id: 'memory-grid', title: 'Memory Grid', emoji: '🧠', href: '/gamehub/', category: 'Brain' },
-  { id: 'snake', title: 'Snake', emoji: '🐍', href: '/gamehub/', category: 'Classic' },
-  { id: 'number-merge', title: 'Number Merge', emoji: '🔢', href: '/gamehub/', category: 'Puzzle' },
-  { id: 'color-match', title: 'Color Match', emoji: '🎨', href: '/gamehub/', category: 'Puzzle' },
-  { id: 'stack-tower', title: 'Stack Tower', emoji: '🏗️', href: '/gamehub/', category: 'Arcade' },
+  { id: 'reflex', title: 'Reflex Rush', emoji: '⚡', href: '/gamehub/?game=reflex', category: 'Arcade' },
+  { id: 'memory-grid', title: 'Memory Grid', emoji: '🧠', href: '/gamehub/?game=memory-grid', category: 'Brain' },
+  { id: 'snake', title: 'Snake', emoji: '🐍', href: '/gamehub/?game=snake', category: 'Classic' },
+  { id: 'number-merge', title: 'Number Merge', emoji: '🔢', href: '/gamehub/?game=number-merge', category: 'Puzzle' },
+  { id: 'color-match', title: 'Color Match', emoji: '🎨', href: '/gamehub/?game=color-match', category: 'Puzzle' },
+  { id: 'stack-tower', title: 'Stack Tower', emoji: '🏗️', href: '/gamehub/?game=stack-tower', category: 'Arcade' },
   { id: 'minesweeper', title: 'Minesweeper', emoji: '💣', href: '/gamehub/minesweeper/', category: 'Puzzle' },
   { id: 'tap-target', title: 'Tap Target', emoji: '🎯', href: '/gamehub/tap-target/', category: 'Arcade' },
 ];

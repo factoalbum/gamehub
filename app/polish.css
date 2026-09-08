@@ -1,0 +1,111 @@
+/* GameHub UX polish layer — keeps the core game UI simple while adding platform-grade interaction design. */
+
+:root{
+  --gh-glow: rgba(183,243,74,.16);
+  --gh-glass: rgba(15,19,27,.78);
+}
+
+::selection{background:rgba(183,243,74,.28);color:#fff}
+
+body{overflow-x:hidden;-webkit-tap-highlight-color:transparent}
+button,a,input{touch-action:manipulation}
+button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+
+/* Make discovery feel more like an arcade lobby. */
+nav{position:sticky;top:0;background:rgba(7,9,13,.82);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
+.logo{transition:transform .18s ease}
+.logo:hover{transform:translateY(-1px)}
+
+.hero{position:relative}
+.hero:after{content:"";position:absolute;left:10%;right:10%;bottom:0;height:1px;background:linear-gradient(90deg,transparent,#293342,transparent)}
+.hero-art{isolation:isolate}
+.hero-art:after{content:"";position:absolute;width:170px;height:170px;border-radius:50%;background:var(--gh-glow);filter:blur(55px);z-index:-1}
+.orbit-card{transition:transform .25s ease,box-shadow .25s ease,border-color .25s ease}
+.hero-art:hover .orbit-card{transform:rotate(-2deg) translateY(-5px);border-color:#465267;box-shadow:0 30px 80px #000b,0 0 55px var(--gh-glow)}
+
+.game-card{will-change:transform}
+.game-card:focus-within{border-color:#526078;box-shadow:0 18px 45px #0008}
+.card-art:after{content:"";position:absolute;inset:0;background:linear-gradient(135deg,#fff0,rgba(255,255,255,.04),#fff0);transform:translateX(-100%);transition:transform .5s ease}
+.game-card:hover .card-art:after{transform:translateX(100%)}
+.play-badge{transition:transform .18s ease,background .18s ease}
+.game-card:hover .play-badge{transform:scale(1.12);background:rgba(183,243,74,.14)}
+
+/* Stronger game-room chrome without changing game mechanics. */
+.game-shell{padding-top:max(18px,env(safe-area-inset-top));padding-bottom:max(24px,env(safe-area-inset-bottom))}
+.game-top{position:sticky;top:10px;z-index:20;padding:8px 0;margin-bottom:8px;background:linear-gradient(180deg,rgba(7,9,13,.94),rgba(7,9,13,.72),transparent);backdrop-filter:blur(8px)}
+.back{transition:.16s ease;box-shadow:0 5px 20px #0004}
+.back:active{transform:scale(.97)}
+.primary,.secondary{min-height:44px}
+.primary:active,.secondary:active{transform:translateY(1px) scale(.99)}
+
+.game-stats{flex-wrap:wrap}
+.memory-cell{cursor:pointer}
+.memory-cell:active{transform:scale(.96)}
+.snake-board,.merge-board{box-shadow:0 25px 80px #0008,0 0 0 1px rgba(255,255,255,.015)}
+.merge-tile{transition:transform .12s ease,filter .12s ease}
+.merge-tile:not(.tile-0){box-shadow:inset 0 1px rgba(255,255,255,.22),0 5px 12px #0003}
+
+/* Compact devices: prioritize the game over decorative chrome. */
+@media (max-width:900px){
+  nav{height:64px;padding:0 16px}
+  .nav-links{display:none}
+  .search{width:min(210px,48vw)}
+  .hero{min-height:auto;padding:55px 18px 45px;grid-template-columns:1fr;gap:20px;text-align:center}
+  .hero p{margin:auto}
+  .hero-actions{justify-content:center;flex-wrap:wrap}
+  .hero-art{min-height:270px;transform:scale(.86)}
+  .content{padding:42px 16px 75px}
+  .section-head{align-items:flex-start;flex-direction:column}
+  .game-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+  .card-art{height:155px}
+  .game-emoji{font-size:56px}
+  .why{padding:10px 16px 75px;grid-template-columns:1fr;gap:30px}
+  .why-grid{grid-template-columns:repeat(3,1fr)}
+  footer{padding-left:16px;padding-right:16px}
+  .snake-layout{grid-template-columns:minmax(0,1fr);gap:20px;max-width:600px}
+  .snake-side{text-align:center;min-height:0}
+  .score-big{font-size:58px;margin-bottom:18px}
+}
+
+@media (max-width:560px){
+  nav{gap:10px}
+  .logo{font-size:18px}
+  .logo span{width:28px;height:28px;margin-right:5px}
+  .search{width:42px;padding:0;justify-content:center;border-radius:12px}
+  .search input{display:none}
+  .search:before{content:'⌕';font-size:18px;color:#9ba5b7}
+  .hero h1{font-size:48px}
+  .hero-art{min-height:220px;transform:scale(.7);margin:-15px 0}
+  .hero-actions{gap:10px}
+  .hero-actions .primary,.hero-actions .secondary{flex:1;min-width:140px}
+  .game-grid{grid-template-columns:1fr}
+  .card-art{height:175px}
+  .game-card{border-radius:17px}
+  .why-grid{grid-template-columns:1fr}
+  .why h2{font-size:36px}
+  footer{align-items:flex-start;flex-direction:column;gap:8px}
+  footer p{margin:0}
+  .game-shell{padding-left:10px;padding-right:10px}
+  .game-top{height:52px;gap:9px}
+  .game-title{font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .back{padding:8px 10px}
+  .back span{display:none}
+  .pill{font-size:8px;padding:5px 7px;white-space:nowrap}
+  .reflex-board{min-height:calc(100svh - 125px);border-radius:20px;padding:22px 14px}
+  .reflex-board h2{font-size:30px}
+  .result-time{font-size:64px}
+  .game-stats{gap:12px;font-size:10px}
+  .memory-wrap,.merge-wrap{margin-top:15px}
+  .memory-board{gap:6px}
+  .memory-cell{border-radius:8px}
+  .memory-intro{gap:10px}
+  .memory-intro span{display:none}
+  .snake-board{padding:5px;border-radius:16px}
+  .snake-cell{border-radius:3px}
+  .merge-board{gap:7px;padding:7px;border-radius:15px}
+  .merge-tile{border-radius:8px;font-size:23px}
+}
+
+@media (prefers-reduced-motion:reduce){
+  *,*:before,*:after{scroll-behavior:auto!important;animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important}
+}

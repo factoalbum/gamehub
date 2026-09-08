@@ -96,12 +96,89 @@ function ColorMatchGame({ game, onExit }: { game: Game; onExit: () => void }) {
   return <div className="game-shell"><GameTop game={game} onExit={onExit} right={<span className="pill">{time}s · BEST {best}</span>} /><div className="color-wrap"><div className="color-head"><div><div className="eyebrow">ROUND {round}</div><h2>Find the <em>odd</em> one.</h2></div><div className="timer-ring">{time}<small>SEC</small></div></div><div className="color-grid">{Array.from({ length: 9 }, (_, i) => <button key={i} aria-label="Color choice" onClick={() => choose(i)} style={{ background: colors[target], opacity: i === odd ? .68 : 1 }} />)}</div>{!running && <div className="color-overlay"><div className="result-icon">🎨</div><h2>{score ? `Score: ${score}` : 'Can you spot it?'}</h2><p>One tile is slightly different. Find it before time runs out.</p><button className="primary" onClick={start}>{score ? 'PLAY AGAIN' : 'START COLOR MATCH'}</button></div>}</div></div>;
 }
 
+function StackTowerGame({ game, onExit }: { game: Game; onExit: () => void }) {
+  type Block = { left: number; width: number };
+  const [tower, setTower] = useState<Block[]>([{ left: 14, width: 72 }]);
+  const [moving, setMoving] = useState<Block>({ left: 0, width: 72 });
+  const [direction, setDirection] = useState(1);
+  const [score, setScore] = useState(0);
+  const [running, setRunning] = useState(false);
+  const [best, saveBest] = useBest('stack-best');
+  const [status, setStatus] = useState<'ready' | 'playing' | 'over'>('ready');
+  const raf = useRef<number | null>(null);
+  const last = useRef(0);
+
+  useEffect(() => () => { if (raf.current) cancelAnimationFrame(raf.current); }, []);
+
+  const loop = useCallback((now: number) => {
+    if (!running) return;
+    const delta = Math.min(32, now - (last.current || now));
+    last.current = now;
+    setMoving(current => {
+      const speed = Math.min(0.105, 0.045 + score * 0.0025);
+      let next = current.left + direction * speed * delta;
+      const max = 100 - current.width;
+      let nextDirection = direction;
+      if (next <= 0) { next = 0; nextDirection = 1; }
+      if (next >= max) { next = max; nextDirection = -1; }
+      if (nextDirection !== direction) setDirection(nextDirection);
+      return { ...current, left: next };
+    });
+    raf.current = requestAnimationFrame(loop);
+  }, [direction, running, score]);
+
+  useEffect(() => {
+    if (!running) return;
+    last.current = 0;
+    raf.current = requestAnimationFrame(loop);
+    return () => { if (raf.current) cancelAnimationFrame(raf.current); };
+  }, [running, loop]);
+
+  const start = () => {
+    const first = { left: 14, width: 72 };
+    setTower([first]); setMoving({ left: 0, width: first.width }); setDirection(1); setScore(0); setStatus('playing'); setRunning(true);
+  };
+
+  const drop = () => {
+    if (!running || tower.length === 0) return;
+    const previous = tower[tower.length - 1];
+    const overlap = Math.min(moving.left + moving.width, previous.left + previous.width) - Math.max(moving.left, previous.left);
+    if (overlap <= 0) {
+      setRunning(false); setStatus('over'); saveBest(score); return;
+    }
+    const perfect = Math.abs(overlap - previous.width) < 1.2;
+    const nextScore = score + 1 + (perfect ? 1 : 0);
+    const left = Math.max(moving.left, previous.left);
+    const nextBlock = { left, width: perfect ? previous.width : overlap };
+    setTower(current => [...current, nextBlock]);
+    setScore(nextScore); saveBest(nextScore);
+    setMoving({ left: direction > 0 ? 0 : 100 - nextBlock.width, width: nextBlock.width });
+    setDirection(direction > 0 ? 1 : -1);
+  };
+
+  const onKey = (e: React.KeyboardEvent<HTMLDivElement>) => { if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); drop(); } };
+  const visibleTower = tower.slice(-8);
+
+  return <div className="game-shell"><GameTop game={game} onExit={onExit} right={<span className="pill">SCORE {score} · BEST {best}</span>} />
+    <div className="tower-wrap">
+      <div className="tower-head"><div><div className="eyebrow">STACK &amp; CLIMB</div><h2>How high can <em>you go?</em></h2><p>Tap, click or press Space to drop. Keep the overlap to build a taller tower.</p></div><div className="tower-score"><strong>{score}</strong><span>POINTS</span></div></div>
+      <div className="tower-stage" role="button" tabIndex={0} aria-label="Stack Tower play area" onClick={drop} onKeyDown={onKey}>
+        {visibleTower.map((block, index) => <div key={`${block.left}-${index}-${visibleTower.length}`} className="tower-block placed" style={{ left: `${block.left}%`, width: `${block.width}%`, bottom: `${index * 9}%` }}><span>{tower.length - visibleTower.length + index + 1}</span></div>)}
+        {running && <div className="tower-block moving" style={{ left: `${moving.left}%`, width: `${moving.width}%`, bottom: `${visibleTower.length * 9}%` }} />}
+        {!running && <div className="tower-overlay"><div className="tower-icon">🏗️</div><h2>{status === 'over' ? `Tower: ${score}` : 'Perfect timing.'}</h2><p>{status === 'over' ? 'You missed the stack. One more run?' : 'Blocks move side to side. Drop them on the tower.'}</p><button className="primary" onClick={e => { e.stopPropagation(); start(); }}>{status === 'over' ? 'PLAY AGAIN' : 'START STACK TOWER'}</button></div>}
+      </div>
+      <div className="tower-tip"><span>🖱️ Click / tap</span><span>⌨️ Space / Enter</span><span>🎯 Perfect overlap = bonus</span></div>
+    </div>
+  </div>;
+}
+
 function GameView({ game, onExit }: { game: Game; onExit: () => void }) {
   if (game.id === 'reflex') return <ReflexGame game={game} onExit={onExit} />;
   if (game.id === 'memory-grid') return <MemoryGame game={game} onExit={onExit} />;
   if (game.id === 'snake') return <SnakeGame game={game} onExit={onExit} />;
   if (game.id === 'number-merge') return <NumberMergeGame game={game} onExit={onExit} />;
   if (game.id === 'color-match') return <ColorMatchGame game={game} onExit={onExit} />;
+  if (game.id === 'stack-tower') return <StackTowerGame game={game} onExit={onExit} />;
   return <div className="game-shell"><GameTop game={game} onExit={onExit} /><div className="coming"><div>{game.emoji}</div><h2>{game.title}</h2><p>This one is next in the GameHub build queue. More games are coming fast.</p><button className="primary" onClick={onExit}>BROWSE GAMES</button></div></div>;
 }
 

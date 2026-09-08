@@ -1,0 +1,25 @@
+'use client';
+
+import { useEffect } from 'react';
+
+const routes: Record<string, string> = {
+  '/gamehub/minesweeper/': 'minesweeper',
+  '/gamehub/tap-target/': 'tap-target',
+  '/gamehub/brick-breaker/': 'brick-breaker',
+  '/gamehub/neon-dodge/': 'neon-dodge',
+};
+
+export default function RecentTracker() {
+  useEffect(() => {
+    const id = routes[window.location.pathname];
+    if (!id) return;
+    try {
+      const current = JSON.parse(localStorage.getItem('gamehub:recent') || '[]') as string[];
+      const recent = [id, ...current.filter(item => item !== id)].slice(0, 5);
+      localStorage.setItem('gamehub:recent', JSON.stringify(recent));
+      window.dispatchEvent(new CustomEvent('gamehub:recent', { detail: recent }));
+    } catch {}
+  }, []);
+
+  return null;
+}

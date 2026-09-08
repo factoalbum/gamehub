@@ -23,8 +23,10 @@ export default function NeonDodge() {
   const [timeLeft, setTimeLeft] = useState(GAME_MS);
   const [combo, setCombo] = useState(0);
   const [hit, setHit] = useState(false);
+  const [newBest, setNewBest] = useState(false);
   const laneRef = useRef(2);
   const scoreRef = useRef(0);
+  const comboRef = useRef(0);
   const idRef = useRef(0);
   const lastSpawn = useRef(0);
   const lastFrame = useRef(0);
@@ -41,8 +43,11 @@ export default function NeonDodge() {
     setScore(finalScore);
     setTimeLeft(0);
     setCombo(0);
+    comboRef.current = 0;
     setHit(wasHit);
     setBest(prev => {
+      const isNewBest = finalScore > prev;
+      setNewBest(isNewBest);
       const next = Math.max(prev, finalScore);
       localStorage.setItem('gamehub:neon-dodge-best', String(next));
       return next;
@@ -63,10 +68,14 @@ export default function NeonDodge() {
     const onKey = (event: KeyboardEvent) => {
       if (event.key === 'ArrowLeft' || event.key.toLowerCase() === 'a') { event.preventDefault(); move(-1); }
       if (event.key === 'ArrowRight' || event.key.toLowerCase() === 'd') { event.preventDefault(); move(1); }
+      if (!running && (event.key === ' ' || event.key === 'Enter')) {
+        event.preventDefault();
+        start();
+      }
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [move]);
+  }, [move, running]);
 
   useEffect(() => {
     if (!running) return;
@@ -89,9 +98,10 @@ export default function NeonDodge() {
           return true;
         });
         if (missed) {
-          scoreRef.current += missed;
+          scoreRef.current += missed * (1 + Math.floor(comboRef.current / 5));
+          comboRef.current += missed;
           setScore(scoreRef.current);
-          setCombo(value => value + missed);
+          setCombo(comboRef.current);
         }
         const collision = next.some(item => item.lane === laneRef.current && item.y > 78 && item.y < 94);
         if (collision) {
@@ -107,14 +117,15 @@ export default function NeonDodge() {
     return () => cancelAnimationFrame(frame);
   }, [running, finish]);
 
-  const start = () => {
+  function start() {
     laneRef.current = 2;
     scoreRef.current = 0;
-    setLane(2); setScore(0); setCombo(0); setObstacles([]); setHit(false); setTimeLeft(GAME_MS); setRunning(true);
+    comboRef.current = 0;
+    setLane(2); setScore(0); setCombo(0); setObstacles([]); setHit(false); setNewBest(false); setTimeLeft(GAME_MS); setRunning(true);
     startTime.current = performance.now();
     lastSpawn.current = startTime.current;
     trackGame('game_start', 'neon-dodge');
-  };
+  }
 
   return <main className="neon-page">
     <div className="neon-shell">
@@ -126,11 +137,11 @@ export default function NeonDodge() {
           {obstacles.map(item => <div key={item.id} className="neon-obstacle" style={{ left: `${(item.lane / LANES) * 100 + 2}%`, top: `${item.y}%`, width: `${100 / LANES - 4}%` }} />)}
           <div className="neon-player" style={{ left: `${(lane / LANES) * 100 + 2}%`, width: `${100 / LANES - 4}%` }}>◆</div>
           <div className="neon-hud"><span>{Math.ceil(timeLeft / 1000)}s</span><span>{combo >= 3 ? `🔥 ${combo} streak` : 'KEEP MOVING'}</span></div>
-          {!running && <div className="neon-overlay"><div className="neon-icon">{hit ? '💥' : '🌌'}</div><h2>{hit ? 'You got hit!' : score ? `Run complete · ${score}` : 'Ready?'}</h2><p>{hit ? `You dodged ${score} blocks. Beat ${best || 'your first'} run.` : 'Arrow keys, A/D, or the buttons below.'}</p><button className="primary" onClick={start}>{score ? 'PLAY AGAIN' : 'START DODGING'}</button></div>}
-          {!running && score === 0 && <div className="neon-tip">45 SEC · 5 LANES · SPEED RISES</div>}
+          {!running && <div className="neon-overlay"><div className="neon-icon">{newBest ? '🏆' : hit ? '💥' : '🌌'}</div><h2>{newBest ? 'NEW BEST!' : hit ? 'You got hit!' : score ? `Run complete · ${score}` : 'Ready?'}</h2><p>{newBest ? `You set a new high score of ${score}.` : hit ? `You dodged ${score} points. Beat ${best || 'your first'} run.` : 'Arrow keys, A/D, or the buttons below.'}</p><button className="primary" onClick={start}>{score ? 'PLAY AGAIN' : 'START DODGING'}</button></div>}
+          {!running && score === 0 && <div className="neon-tip">45 SEC · 5 LANES · STREAK MULTIPLIERS</div>}
         </div>
         <div className="neon-controls"><button onClick={() => move(-1)} aria-label="Move left">←</button><span>← A / D →</span><button onClick={() => move(1)} aria-label="Move right">→</button></div>
-        <div className="neon-stats"><span>🏆 Best: {best}</span><span>⚡ 45 second survival</span><span>🎯 Dodge as many as possible</span></div>
+        <div className="neon-stats"><span>🏆 Best: {best}</span><span>⚡ 45 second survival</span><span>🔥 5-block streak = 2× points</span></div>
       </section>
     </div>
   </main>;

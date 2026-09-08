@@ -86,9 +86,25 @@ export default function AlienBlasterPage() {
         if (edge) { s.enemyDir *= -1; alive.forEach(e => e.y += 15); }
         for (const shot of s.shots) for (const enemy of s.enemies) if (enemy.alive && Math.hypot(shot.x - enemy.x, shot.y - enemy.y) < 17) { enemy.alive = false; shot.y = -99; s.score += 10 + (4 - enemy.row) * 3; }
         s.shots = s.shots.filter(shot => shot.y > -50);
-        if (s.enemies.some(e => e.alive && e.y > H - 115)) { s.lives = 0; s.running = false; setStatus('over'); trackGame('game_finish', 'alien-blaster', { score: s.score, wave: s.wave }); }
-        if (s.enemies.every(e => !e.alive)) { s.wave++; s.enemies = makeWave(s.wave); s.enemyDir = 1; s.shots = []; }
-        if (s.lives <= 0) { s.running = false; setStatus('over'); const next = Math.max(s.best, s.score); s.best = next; setBest(next); localStorage.setItem('gamehub:alien-blaster-best', String(next)); }
+        const breached = s.enemies.some(e => e.alive && e.y > H - 115);
+        if (breached) {
+          s.lives -= 1;
+          s.shots = [];
+          if (s.lives > 0) {
+            s.enemies = makeWave(s.wave);
+            s.enemyDir = 1;
+            s.playerX = W / 2;
+          } else {
+            s.running = false;
+            const next = Math.max(s.best, s.score);
+            s.best = next;
+            setBest(next);
+            localStorage.setItem('gamehub:alien-blaster-best', String(next));
+            setStatus('over');
+            trackGame('game_finish', 'alien-blaster', { score: s.score, wave: s.wave });
+          }
+        }
+        if (s.running && s.enemies.every(e => !e.alive)) { s.wave++; s.enemies = makeWave(s.wave); s.enemyDir = 1; s.shots = []; }
         sync();
       }
       ctx.clearRect(0, 0, W, H);

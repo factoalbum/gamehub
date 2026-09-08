@@ -10,6 +10,7 @@ const routes: Record<string, string> = {
   '/gamehub/neon-dodge/': 'neon-dodge',
   '/gamehub/hoop-duel/': 'hoop-duel',
   '/gamehub/mini-football/': 'mini-football',
+  '/gamehub/volley-duel/': 'volley-duel',
 };
 
 export default function RecentTracker() {

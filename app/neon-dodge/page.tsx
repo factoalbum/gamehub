@@ -28,25 +28,26 @@ export default function NeonDodge() {
   const idRef = useRef(0);
   const lastSpawn = useRef(0);
   const lastFrame = useRef(0);
+  const startTime = useRef(0);
 
   useEffect(() => {
     const saved = Number(localStorage.getItem('gamehub:neon-dodge-best') || 0);
     setBest(saved);
   }, []);
 
-  const finish = useCallback((finalScore = scoreRef.current) => {
+  const finish = useCallback((finalScore = scoreRef.current, wasHit = false) => {
     setRunning(false);
     setObstacles([]);
     setScore(finalScore);
     setTimeLeft(0);
     setCombo(0);
-    setHit(false);
+    setHit(wasHit);
     setBest(prev => {
       const next = Math.max(prev, finalScore);
       localStorage.setItem('gamehub:neon-dodge-best', String(next));
       return next;
     });
-    trackGame('game_finish', 'neon-dodge', { score: finalScore });
+    trackGame('game_finish', 'neon-dodge', { score: finalScore, hit: wasHit });
   }, []);
 
   const move = useCallback((delta: number) => {
@@ -62,11 +63,10 @@ export default function NeonDodge() {
     const onKey = (event: KeyboardEvent) => {
       if (event.key === 'ArrowLeft' || event.key.toLowerCase() === 'a') { event.preventDefault(); move(-1); }
       if (event.key === 'ArrowRight' || event.key.toLowerCase() === 'd') { event.preventDefault(); move(1); }
-      if (event.key.toLowerCase() === 'p' && running) setRunning(false);
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [move, running]);
+  }, [move]);
 
   useEffect(() => {
     if (!running) return;
@@ -74,9 +74,10 @@ export default function NeonDodge() {
     const tick = (now: number) => {
       const delta = Math.min(40, now - (lastFrame.current || now));
       lastFrame.current = now;
-      const elapsed = GAME_MS - timeLeft;
-      if (elapsed >= GAME_MS) { finish(); return; }
-      setTimeLeft(Math.max(0, GAME_MS - elapsed - delta));
+      const elapsed = now - startTime.current;
+      const remaining = GAME_MS - elapsed;
+      if (remaining <= 0) { finish(scoreRef.current, false); return; }
+      setTimeLeft(remaining);
       if (now - lastSpawn.current > Math.max(260, 690 - scoreRef.current * 4)) {
         lastSpawn.current = now;
         setObstacles(current => [...current, { id: idRef.current++, lane: randomLane(), y: -12, speed: 0.085 + Math.min(scoreRef.current, 30) * 0.0018 }]);
@@ -94,8 +95,7 @@ export default function NeonDodge() {
         }
         const collision = next.some(item => item.lane === laneRef.current && item.y > 78 && item.y < 94);
         if (collision) {
-          setHit(true);
-          finish(scoreRef.current);
+          finish(scoreRef.current, true);
           return [];
         }
         return next;
@@ -105,13 +105,14 @@ export default function NeonDodge() {
     lastFrame.current = 0;
     frame = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(frame);
-  }, [running, timeLeft, finish]);
+  }, [running, finish]);
 
   const start = () => {
     laneRef.current = 2;
     scoreRef.current = 0;
     setLane(2); setScore(0); setCombo(0); setObstacles([]); setHit(false); setTimeLeft(GAME_MS); setRunning(true);
-    lastSpawn.current = performance.now();
+    startTime.current = performance.now();
+    lastSpawn.current = startTime.current;
     trackGame('game_start', 'neon-dodge');
   };
 
@@ -128,7 +129,7 @@ export default function NeonDodge() {
           {!running && <div className="neon-overlay"><div className="neon-icon">{hit ? '💥' : '🌌'}</div><h2>{hit ? 'You got hit!' : score ? `Run complete · ${score}` : 'Ready?'}</h2><p>{hit ? `You dodged ${score} blocks. Beat ${best || 'your first'} run.` : 'Arrow keys, A/D, or the buttons below.'}</p><button className="primary" onClick={start}>{score ? 'PLAY AGAIN' : 'START DODGING'}</button></div>}
           {!running && score === 0 && <div className="neon-tip">45 SEC · 5 LANES · SPEED RISES</div>}
         </div>
-        <div className="neon-controls"><button onClick={() => move(-1)} aria-label="Move left">←</button><button className="pause" onClick={() => running && setRunning(false)} disabled={!running}>{running ? 'Ⅱ' : 'PAUSED'}</button><button onClick={() => move(1)} aria-label="Move right">→</button></div>
+        <div className="neon-controls"><button onClick={() => move(-1)} aria-label="Move left">←</button><span>← A / D →</span><button onClick={() => move(1)} aria-label="Move right">→</button></div>
         <div className="neon-stats"><span>🏆 Best: {best}</span><span>⚡ 45 second survival</span><span>🎯 Dodge as many as possible</span></div>
       </section>
     </div>

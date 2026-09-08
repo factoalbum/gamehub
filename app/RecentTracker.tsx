@@ -11,6 +11,7 @@ const routes: Record<string, string> = {
   '/gamehub/hoop-duel/': 'hoop-duel',
   '/gamehub/mini-football/': 'mini-football',
   '/gamehub/volley-duel/': 'volley-duel',
+  '/gamehub/tennis-duel/': 'tennis-duel',
 };
 
 export default function RecentTracker() {

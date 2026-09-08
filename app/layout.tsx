@@ -2,14 +2,9 @@ import './globals.css';
 import './polish.css';
 import './share-score.css';
 import type { Metadata, Viewport } from 'next';
-import MinesweeperPromo from './MinesweeperPromo';
-import DailyChallenge from './DailyChallenge';
-import TapTargetPromo from './TapTargetPromo';
-import RecentlyPlayed from './RecentlyPlayed';
+import HomePromos from './HomePromos';
 import GameUrlBridge from './GameUrlBridge';
 import ShareScore from './ShareScore';
-import BrickBreakerPromo from './BrickBreakerPromo';
-import NeonDodgePromo from './NeonDodgePromo';
 import RecentTracker from './RecentTracker';
 
 export const metadata: Metadata = {
@@ -25,5 +20,5 @@ export const viewport: Viewport = {
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return <html lang="en"><body><GameUrlBridge /><RecentTracker /><DailyChallenge /><MinesweeperPromo /><TapTargetPromo /><RecentlyPlayed /><BrickBreakerPromo /><NeonDodgePromo /><ShareScore />{children}</body></html>;
+  return <html lang="en"><body><GameUrlBridge /><RecentTracker />{children}<HomePromos /><ShareScore /></body></html>;
 }

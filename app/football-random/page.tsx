@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import './football-random.css';
 import { trackGame } from '../lib/analytics';
-import TwoPlayerTouchControls, { TouchAction } from '../TwoPlayerTouchControls';
+import TwoPlayerTapZones from '../TwoPlayerTapZones';
 
 type Player = { x: number; y: number; vy: number; score: number; phase: number };
 type Ball = { x: number; y: number; vx: number; vy: number };
@@ -38,12 +38,6 @@ export default function FootballRandom() {
     if (p.y >= FLOOR - 65) p.vy = -10.2;
   }, [reset]);
 
-  const touchPress = useCallback((who: 1 | 2, action: TouchAction) => {
-    if (action !== 'action' && action !== 'boost') return;
-    jump(who);
-  }, [jump]);
-  const touchRelease = useCallback((_who: 1 | 2, _action: TouchAction) => {}, []);
-
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       const k = e.key.toLowerCase();
@@ -64,9 +58,10 @@ export default function FootballRandom() {
     const scorePoint = (scorer: 0 | 1) => {
       players.current[scorer].score++;
       const s: [number, number] = [players.current[0].score, players.current[1].score]; setScore(s);
-      trackGame('game_finish', 'football-random', { scorer: scorer + 1, score: s[scorer] });
-      if (s[scorer] >= WIN) { phase.current = 'over'; setUiPhase('over'); setWinner(scorer + 1); setMessage(`PLAYER ${scorer + 1} WINS!`); }
-      else { ball.current = makeBall(); ball.current.x = W / 2; ball.current.y = 170; setMessage(`GOAL! PLAYER ${scorer + 1}`); }
+      if (s[scorer] >= WIN) {
+        phase.current = 'over'; setUiPhase('over'); setWinner(scorer + 1); setMessage(`PLAYER ${scorer + 1} WINS!`);
+        trackGame('game_finish', 'football-random', { scorer: scorer + 1, score: s[scorer] });
+      } else { ball.current = makeBall(); ball.current.x = W / 2; ball.current.y = 170; setMessage(`GOAL! PLAYER ${scorer + 1}`); }
     };
     const drawPlayer = (p: Player, no: 1 | 2) => { const bob = Math.sin(p.phase) * 3; ctx.save(); ctx.translate(p.x, p.y + bob); ctx.fillStyle = no === 1 ? '#b7f34a' : '#78e4ff'; ctx.beginPath(); ctx.arc(0, -12, 17, 0, Math.PI * 2); ctx.fill(); ctx.fillRect(-16, 4, 32, 35); ctx.fillRect(-13, 39, 9, 23); ctx.fillRect(4, 39, 9, 23); ctx.restore(); };
     const draw = () => { ctx.clearRect(0, 0, W, H); const g = ctx.createLinearGradient(0, 0, 0, H); g.addColorStop(0, '#162c20'); g.addColorStop(1, '#07100c'); ctx.fillStyle = g; ctx.fillRect(0, 0, W, H); ctx.fillStyle = '#14331f'; ctx.fillRect(0, FLOOR, W, H - FLOOR); ctx.strokeStyle = '#31533f'; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(0, FLOOR); ctx.lineTo(W, FLOOR); ctx.stroke(); ctx.strokeStyle = '#294936'; ctx.setLineDash([9, 11]); ctx.beginPath(); ctx.moveTo(W / 2, 0); ctx.lineTo(W / 2, FLOOR); ctx.stroke(); ctx.setLineDash([]); ctx.strokeStyle = '#dfe9e2'; ctx.lineWidth = 5; ctx.strokeRect(0, FLOOR - 100, 55, 100); ctx.strokeRect(W - 55, FLOOR - 100, 55, 100); drawPlayer(players.current[0], 1); drawPlayer(players.current[1], 2); const b = ball.current; ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(b.x, b.y, 14, 0, Math.PI * 2); ctx.fill(); ctx.strokeStyle = '#b8c2c0'; ctx.lineWidth = 1; ctx.beginPath(); ctx.arc(b.x, b.y, 8, 0, Math.PI * 1.5); ctx.stroke(); };
@@ -90,7 +85,7 @@ export default function FootballRandom() {
     <header className="random-football-top"><a href="/gamehub/multiplayer/">← MULTIPLAYER</a><div><span>GAMEHUB · RANDOM SPORTS</span><h1>⚽ FOOTBALL RANDOM</h1></div><div className="random-score"><b>{score[0]}</b><i>:</i><b>{score[1]}</b></div></header>
     <section className="random-card"><div className="random-head"><span>ONE BUTTON · 2 PLAYER</span><strong>{message}</strong><small>Tap or hold your side. Both players can jump at the same time.</small></div>
       <div className="random-stage"><canvas ref={canvasRef} width={W} height={H} aria-label="Football Random game"/><div className="side-label p1">P1</div><div className="side-label p2">P2</div>{uiPhase !== 'playing' && <div className="random-overlay"><span>⚽</span><h2>{uiPhase === 'over' ? `PLAYER ${winner} WINS!` : 'READY?'}</h2><p>{uiPhase === 'over' ? `${score[0]} — ${score[1]} · Rematch instantly.` : 'One tap is all you need. First to 5 goals wins.'}</p><button onClick={() => reset(true)}>{uiPhase === 'over' ? 'REMATCH' : 'START MATCH'}</button></div>}</div>
-      <TwoPlayerTouchControls onPress={touchPress} onRelease={touchRelease} actionLabel="JUMP" actionLabel2="JUMP" upLabel="JUMP" />
+      <TwoPlayerTapZones onPress={jump} label="JUMP" />
       <p className="random-note">ONE DEVICE · TWO PLAYERS · SIMULTANEOUS TOUCH</p>
     </section>
   </div></main>;

@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { trackGame } from '../lib/analytics';
 import './minesweeper.css';
 
 type Cell = { mine: boolean; count: number; revealed: boolean; flagged: boolean };
@@ -48,20 +49,21 @@ export default function Minesweeper() {
   const [best, setBest] = useState<number | null>(null);
   const flags = useMemo(() => board.filter(c => c.flagged).length, [board]);
 
-  useEffect(() => { const saved = Number(localStorage.getItem('gamehub:minesweeper-best') || 0); if (saved) setBest(saved); }, []);
+  useEffect(() => { const saved = Number(localStorage.getItem('gamehub:minesweeper-best') || 0); if (saved) setBest(saved); trackGame('game_open', 'minesweeper'); }, []);
   useEffect(() => { if (status !== 'playing') return; const id = setInterval(() => setSeconds(s => Math.min(999, s + 1)), 1000); return () => clearInterval(id); }, [status]);
 
-  const reset = useCallback(() => { setBoard(empty()); setStarted(false); setStatus('ready'); setSeconds(0); }, []);
+  const reset = useCallback(() => { setBoard(empty()); setStarted(false); setStatus('ready'); setSeconds(0); trackGame('game_restart', 'minesweeper'); }, []);
 
   const finish = useCallback((next: Cell[], won: boolean) => {
     setBoard(next); setStatus(won ? 'won' : 'lost');
     if (won && (!best || seconds < best)) { setBest(seconds); localStorage.setItem('gamehub:minesweeper-best', String(seconds)); }
+    trackGame('game_finish', 'minesweeper', { result: won ? 'win' : 'loss', score: seconds });
   }, [best, seconds]);
 
   function open(i: number) {
     if (status === 'won' || status === 'lost' || board[i]?.flagged) return;
     let next = board;
-    if (!started) { next = buildBoard(i); setStarted(true); setStatus('playing'); }
+    if (!started) { next = buildBoard(i); setStarted(true); setStatus('playing'); trackGame('game_start', 'minesweeper'); }
     if (next[i].mine) { const shown = next.map(c => ({ ...c, revealed: c.mine ? true : c.revealed })); finish(shown, false); return; }
     next = reveal(next, i);
     const safe = next.filter(c => !c.mine && c.revealed).length;

@@ -18,6 +18,7 @@ const catalog: RecentGame[] = [
   { id: 'neon-dodge', title: 'Neon Dodge', emoji: '🟣', href: '/gamehub/neon-dodge/', category: 'Arcade' },
   { id: 'hoop-duel', title: 'Hoop Duel', emoji: '🏀', href: '/gamehub/hoop-duel/', category: '2 Player' },
   { id: 'mini-football', title: 'Mini Football', emoji: '⚽', href: '/gamehub/mini-football/', category: '2 Player' },
+  { id: 'volley-duel', title: 'Volley Duel', emoji: '🏐', href: '/gamehub/volley-duel/', category: '2 Player' },
 ];
 
 function readRecent() {

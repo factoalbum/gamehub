@@ -16,15 +16,27 @@ const catalog: RecentGame[] = [
   { id: 'tap-target', title: 'Tap Target', emoji: '🎯', href: '/gamehub/tap-target/', category: 'Arcade' },
 ];
 
+function readRecent() {
+  try {
+    const ids = JSON.parse(localStorage.getItem('gamehub:recent') || '[]') as string[];
+    return ids.map(id => catalog.find(game => game.id === id)).filter(Boolean) as RecentGame[];
+  } catch {
+    return [];
+  }
+}
+
 export default function RecentlyPlayed() {
   const [recent, setRecent] = useState<RecentGame[]>([]);
 
   useEffect(() => {
-    try {
-      const ids = JSON.parse(localStorage.getItem('gamehub:recent') || '[]') as string[];
-      const items = ids.map(id => catalog.find(game => game.id === id)).filter(Boolean) as RecentGame[];
-      setRecent(items);
-    } catch { setRecent([]); }
+    setRecent(readRecent());
+    const refresh = () => setRecent(readRecent());
+    window.addEventListener('gamehub:recent', refresh);
+    window.addEventListener('storage', refresh);
+    return () => {
+      window.removeEventListener('gamehub:recent', refresh);
+      window.removeEventListener('storage', refresh);
+    };
   }, []);
 
   if (!recent.length) return null;

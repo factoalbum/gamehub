@@ -11,7 +11,6 @@ body{overflow-x:hidden;-webkit-tap-highlight-color:transparent}
 button,a,input{touch-action:manipulation}
 button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
 
-/* Make discovery feel more like an arcade lobby. */
 nav{position:sticky;top:0;background:rgba(7,9,13,.82);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
 .logo{transition:transform .18s ease}
 .logo:hover{transform:translateY(-1px)}
@@ -30,7 +29,6 @@ nav{position:sticky;top:0;background:rgba(7,9,13,.82);backdrop-filter:blur(18px)
 .play-badge{transition:transform .18s ease,background .18s ease}
 .game-card:hover .play-badge{transform:scale(1.12);background:rgba(183,243,74,.14)}
 
-/* Stronger game-room chrome without changing game mechanics. */
 .game-shell{padding-top:max(18px,env(safe-area-inset-top));padding-bottom:max(24px,env(safe-area-inset-bottom))}
 .game-top{position:sticky;top:10px;z-index:20;padding:8px 0;margin-bottom:8px;background:linear-gradient(180deg,rgba(7,9,13,.94),rgba(7,9,13,.72),transparent);backdrop-filter:blur(8px)}
 .back{transition:.16s ease;box-shadow:0 5px 20px #0004}
@@ -45,7 +43,29 @@ nav{position:sticky;top:0;background:rgba(7,9,13,.82);backdrop-filter:blur(18px)
 .merge-tile{transition:transform .12s ease,filter .12s ease}
 .merge-tile:not(.tile-0){box-shadow:inset 0 1px rgba(255,255,255,.22),0 5px 12px #0003}
 
-/* Compact devices: prioritize the game over decorative chrome. */
+/* Stack Tower: tactile, readable, and designed around one action — drop. */
+.tower-wrap{width:min(980px,100%);margin:18px auto 0;padding:0 18px 30px}
+.tower-head{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;margin:0 auto 18px;max-width:900px}
+.tower-head h2{margin:4px 0 8px;font-size:clamp(30px,5vw,54px);line-height:.98;letter-spacing:-.04em}
+.tower-head h2 em{font-style:normal;color:var(--accent)}
+.tower-head p{margin:0;max-width:620px;color:var(--muted);font-size:14px;line-height:1.6}
+.tower-score{min-width:100px;text-align:right;display:grid;gap:2px}
+.tower-score strong{font-size:42px;line-height:1;letter-spacing:-.05em}
+.tower-score span{font-size:9px;letter-spacing:.14em;color:var(--muted);font-weight:800}
+.tower-stage{position:relative;isolation:isolate;overflow:hidden;width:min(900px,100%);height:min(70svh,620px);min-height:460px;margin:0 auto;border:1px solid #283141;border-radius:24px;background:radial-gradient(circle at 50% 15%,rgba(183,243,74,.09),transparent 32%),linear-gradient(180deg,#101722,#090c12);box-shadow:0 30px 90px #0009,inset 0 1px rgba(255,255,255,.04);cursor:pointer;user-select:none;touch-action:manipulation}
+.tower-stage:before{content:"";position:absolute;inset:0;background:linear-gradient(transparent 94%,rgba(255,255,255,.05) 94%),linear-gradient(90deg,transparent 49.9%,rgba(255,255,255,.025) 50%,transparent 50.1%);background-size:100% 45px,100% 100%;pointer-events:none}
+.tower-stage:after{content:"";position:absolute;left:5%;right:5%;bottom:5%;height:1px;background:linear-gradient(90deg,transparent,#3a4657,transparent);box-shadow:0 0 35px rgba(183,243,74,.1);pointer-events:none}
+.tower-block{position:absolute;height:8.4%;min-height:28px;border-radius:9px;border:1px solid rgba(255,255,255,.2);background:linear-gradient(135deg,#d8ff7b,#8ec52c 55%,#638f22);box-shadow:0 7px 16px #0006,inset 0 1px rgba(255,255,255,.45);transition:filter .12s ease}
+.tower-block.placed{z-index:3}
+.tower-block.moving{z-index:8;background:linear-gradient(135deg,#fff39a,#b7f34a 52%,#6ea31e);box-shadow:0 0 28px rgba(183,243,74,.18),0 10px 20px #0007,inset 0 1px rgba(255,255,255,.55)}
+.tower-block span{display:block;color:#23310f;font-size:9px;font-weight:900;text-align:center;padding-top:9px;opacity:.45}
+.tower-overlay{position:absolute;z-index:15;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;text-align:center;padding:24px;background:rgba(5,8,12,.66);backdrop-filter:blur(5px)}
+.tower-icon{font-size:54px;filter:drop-shadow(0 12px 22px #0008);margin-bottom:8px}
+.tower-overlay h2{margin:0 0 8px;font-size:32px;letter-spacing:-.03em}
+.tower-overlay p{max-width:420px;margin:0 0 22px;color:#aab3c2;line-height:1.55;font-size:14px}
+.tower-tip{display:flex;justify-content:center;flex-wrap:wrap;gap:10px;margin:14px auto 0;color:#8e98a9;font-size:11px;font-weight:700}
+.tower-tip span{padding:8px 11px;border:1px solid #202938;border-radius:999px;background:#0c1119}
+
 @media (max-width:900px){
   nav{height:64px;padding:0 16px}
   .nav-links{display:none}
@@ -65,6 +85,8 @@ nav{position:sticky;top:0;background:rgba(7,9,13,.82);backdrop-filter:blur(18px)
   .snake-layout{grid-template-columns:minmax(0,1fr);gap:20px;max-width:600px}
   .snake-side{text-align:center;min-height:0}
   .score-big{font-size:58px;margin-bottom:18px}
+  .tower-wrap{padding-left:12px;padding-right:12px}
+  .tower-stage{height:65svh;min-height:430px}
 }
 
 @media (max-width:560px){
@@ -104,6 +126,19 @@ nav{position:sticky;top:0;background:rgba(7,9,13,.82);backdrop-filter:blur(18px)
   .snake-cell{border-radius:3px}
   .merge-board{gap:7px;padding:7px;border-radius:15px}
   .merge-tile{border-radius:8px;font-size:23px}
+  .tower-wrap{margin-top:8px;padding:0 2px 20px}
+  .tower-head{align-items:center;margin-bottom:12px;gap:10px}
+  .tower-head h2{font-size:31px}
+  .tower-head p{font-size:11px;line-height:1.45}
+  .tower-score{min-width:66px}
+  .tower-score strong{font-size:31px}
+  .tower-stage{height:calc(100svh - 185px);min-height:390px;border-radius:18px}
+  .tower-block{min-height:24px;border-radius:7px}
+  .tower-block span{display:none}
+  .tower-overlay h2{font-size:27px}
+  .tower-overlay p{font-size:12px}
+  .tower-tip{font-size:9px;gap:6px}
+  .tower-tip span{padding:6px 8px}
 }
 
 @media (prefers-reduced-motion:reduce){

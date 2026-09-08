@@ -1,6 +1,7 @@
 'use client';
 
 import './two-player-touch-controls.css';
+import { useRef } from 'react';
 
 export type TouchAction = 'left' | 'right' | 'up' | 'down' | 'action' | 'boost';
 
@@ -23,9 +24,15 @@ type ButtonProps = {
 };
 
 function ControlButton({ player, action, label, onPress, onRelease }: ButtonProps) {
-  const release = (button: HTMLButtonElement) => {
-    button.classList.remove('touch-held');
-    onRelease(player, action);
+  const pointers = useRef(new Set<number>());
+
+  const releasePointer = (button: HTMLButtonElement, pointerId: number) => {
+    if (!pointers.current.has(pointerId)) return;
+    pointers.current.delete(pointerId);
+    if (pointers.current.size === 0) {
+      button.classList.remove('touch-held');
+      onRelease(player, action);
+    }
   };
 
   return (
@@ -35,19 +42,24 @@ function ControlButton({ player, action, label, onPress, onRelease }: ButtonProp
       aria-label={`Player ${player} ${label}`}
       onPointerDown={(e) => {
         e.preventDefault();
-        e.currentTarget.classList.add('touch-held');
+        if (pointers.current.size === 0) {
+          e.currentTarget.classList.add('touch-held');
+          onPress(player, action);
+        }
+        pointers.current.add(e.pointerId);
         e.currentTarget.setPointerCapture?.(e.pointerId);
-        onPress(player, action);
       }}
       onPointerUp={(e) => {
         e.preventDefault();
-        release(e.currentTarget);
+        releasePointer(e.currentTarget, e.pointerId);
       }}
       onPointerCancel={(e) => {
         e.preventDefault();
-        release(e.currentTarget);
+        releasePointer(e.currentTarget, e.pointerId);
       }}
-      onLostPointerCapture={(e) => release(e.currentTarget)}
+      onLostPointerCapture={(e) => {
+        releasePointer(e.currentTarget, e.pointerId);
+      }}
     >
       {label}
     </button>

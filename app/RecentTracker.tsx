@@ -8,11 +8,11 @@ const routes: Record<string, string> = {
   '/gamehub/tap-target/': 'tap-target',
   '/gamehub/brick-breaker/': 'brick-breaker',
   '/gamehub/neon-dodge/': 'neon-dodge',
+  '/gamehub/hoop-duel/': 'hoop-duel',
 };
 
 export default function RecentTracker() {
   const pathname = usePathname();
-
   useEffect(() => {
     const id = routes[pathname];
     if (!id) return;
@@ -23,6 +23,5 @@ export default function RecentTracker() {
       window.dispatchEvent(new CustomEvent('gamehub:recent', { detail: recent }));
     } catch {}
   }, [pathname]);
-
   return null;
 }

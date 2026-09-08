@@ -13,6 +13,8 @@ function readScore() {
   const pill = document.querySelector('.game-top .pill')?.textContent?.trim();
   const big = document.querySelector('.score-big')?.textContent?.trim();
   const tower = document.querySelector('.tower-score strong')?.textContent?.trim();
+  const color = document.querySelector('.color-overlay h2')?.textContent?.match(/Score:\s*([\d,]+)/i);
+  if (color) return color[1];
   if (big) return big.split(/\s+/)[0];
   if (tower) return tower;
   if (pill) {

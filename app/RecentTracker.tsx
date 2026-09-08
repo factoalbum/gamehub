@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
+import { usePathname } from 'next/navigation';
 
 const routes: Record<string, string> = {
   '/gamehub/minesweeper/': 'minesweeper',
@@ -10,8 +11,10 @@ const routes: Record<string, string> = {
 };
 
 export default function RecentTracker() {
+  const pathname = usePathname();
+
   useEffect(() => {
-    const id = routes[window.location.pathname];
+    const id = routes[pathname];
     if (!id) return;
     try {
       const current = JSON.parse(localStorage.getItem('gamehub:recent') || '[]') as string[];
@@ -19,7 +22,7 @@ export default function RecentTracker() {
       localStorage.setItem('gamehub:recent', JSON.stringify(recent));
       window.dispatchEvent(new CustomEvent('gamehub:recent', { detail: recent }));
     } catch {}
-  }, []);
+  }, [pathname]);
 
   return null;
 }

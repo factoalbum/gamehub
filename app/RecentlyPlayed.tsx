@@ -14,6 +14,8 @@ const catalog: RecentGame[] = [
   { id: 'stack-tower', title: 'Stack Tower', emoji: '🏗️', href: '/gamehub/?game=stack-tower', category: 'Arcade' },
   { id: 'minesweeper', title: 'Minesweeper', emoji: '💣', href: '/gamehub/minesweeper/', category: 'Puzzle' },
   { id: 'tap-target', title: 'Tap Target', emoji: '🎯', href: '/gamehub/tap-target/', category: 'Arcade' },
+  { id: 'brick-breaker', title: 'Brick Breaker', emoji: '🧱', href: '/gamehub/brick-breaker/', category: 'Arcade' },
+  { id: 'neon-dodge', title: 'Neon Dodge', emoji: '🟣', href: '/gamehub/neon-dodge/', category: 'Arcade' },
 ];
 
 function readRecent() {

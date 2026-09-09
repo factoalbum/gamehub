@@ -69,7 +69,14 @@ export default function FootballRandom() {
       const dt = Math.min(2, (time - last.current) / 16.67 || 1); last.current = time;
       if (phase.current === 'playing') {
         const ps = players.current, b = ball.current;
-        ps.forEach((p, i) => { p.phase += 0.12 * dt; p.vy += GRAVITY * dt; p.y += p.vy * dt; if (p.y > FLOOR - 64) { p.y = FLOOR - 64; p.vy = 0; } p.x += (i === 0 ? 0.8 : -0.8) * Math.sin(p.phase * .55) * dt; });
+        ps.forEach((p, i) => {
+          p.phase += 0.12 * dt; p.vy += GRAVITY * dt; p.y += p.vy * dt;
+          if (p.y > FLOOR - 64) { p.y = FLOOR - 64; p.vy = 0; }
+          p.x += (i === 0 ? 0.8 : -0.8) * Math.sin(p.phase * .55) * dt;
+          const minX = i === 0 ? 72 : W / 2 + 30;
+          const maxX = i === 0 ? W / 2 - 70 : W - 72;
+          p.x = Math.max(minX, Math.min(maxX, p.x));
+        });
         b.vy += GRAVITY * dt; b.x += b.vx * dt; b.y += b.vy * dt; b.vx *= Math.pow(.997, dt);
         if (b.x < 14) { b.x = 14; b.vx = Math.abs(b.vx); } if (b.x > W - 14) { b.x = W - 14; b.vx = -Math.abs(b.vx); } if (b.y < 14) { b.y = 14; b.vy = Math.abs(b.vy); }
         ps.forEach((p, i) => { const dx = b.x - p.x, dy = b.y - (p.y + 8); if (Math.hypot(dx, dy) < 42) { const toward = i === 0 ? 1 : -1; b.vx = toward * (5.5 + Math.min(3, Math.abs(dx) / 10)); b.vy = -7.5 - Math.max(0, -p.vy * .18); b.x = p.x + toward * 35; b.y = p.y + 4; } });

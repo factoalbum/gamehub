@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { freshDropGames, multiplayerGames, recentGames } from '../lib/game-catalog';
+import GameDirectory from './GameDirectory';
 import './games.css';
 
 export const metadata: Metadata = {
@@ -23,24 +24,7 @@ export default function GamesPage() {
         <p>{allGames.length} free games, ready in your browser. No downloads, no accounts.</p>
       </section>
       <div className="directory-groups">
-        {groups.map(category => {
-          const games = allGames.filter(game => game.category === category);
-          if (!games.length) return null;
-          return (
-            <section className="directory-section" key={category}>
-              <div className="directory-section-head"><h2>{category}</h2><span>{games.length} games</span></div>
-              <div className="directory-grid">
-                {games.map(game => (
-                  <a className="directory-card" href={game.href} key={game.id}>
-                    <span className="directory-icon" aria-hidden="true">{game.emoji}</span>
-                    <span className="directory-copy"><strong>{game.label}</strong><small>{game.meta}</small></span>
-                    <b aria-hidden="true">→</b>
-                  </a>
-                ))}
-              </div>
-            </section>
-          );
-        })}
+        <GameDirectory games={allGames} groups={groups} />
       </div>
       <footer className="directory-footer"><a href="/gamehub/">GAMEHUB</a><span>Free browser games · Play instantly</span></footer>
     </main>

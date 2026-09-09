@@ -5,12 +5,15 @@ import { useEffect, useRef } from 'react';
 type Props = {
   onMove: (x: number, y: number) => void;
   onStop: () => void;
-  onFire: () => void;
+  onFireStart: () => void;
+  onFireStop: () => void;
 };
 
-export default function AsteroidTouchControls({ onMove, onStop, onFire }: Props) {
+export default function AsteroidTouchControls({ onMove, onStop, onFireStart, onFireStop }: Props) {
   const stickRef = useRef<HTMLButtonElement>(null);
+  const fireRef = useRef<HTMLButtonElement>(null);
   const active = useRef<number | null>(null);
+  const firePointer = useRef<number | null>(null);
 
   useEffect(() => {
     const el = stickRef.current;
@@ -44,6 +47,29 @@ export default function AsteroidTouchControls({ onMove, onStop, onFire }: Props)
     return () => { el.removeEventListener('pointerdown', down); el.removeEventListener('pointermove', move); el.removeEventListener('pointerup', stop); el.removeEventListener('pointercancel', stop); el.removeEventListener('lostpointercapture', stop); };
   }, [onMove, onStop]);
 
+  useEffect(() => {
+    const el = fireRef.current;
+    if (!el) return;
+    const stop = (e: PointerEvent) => {
+      if (firePointer.current !== e.pointerId) return;
+      firePointer.current = null;
+      try { el.releasePointerCapture(e.pointerId); } catch {}
+      onFireStop();
+    };
+    const down = (e: PointerEvent) => {
+      if (firePointer.current !== null) return;
+      firePointer.current = e.pointerId;
+      el.setPointerCapture(e.pointerId);
+      onFireStart();
+      e.preventDefault();
+    };
+    el.addEventListener('pointerdown', down);
+    el.addEventListener('pointerup', stop);
+    el.addEventListener('pointercancel', stop);
+    el.addEventListener('lostpointercapture', stop);
+    return () => { el.removeEventListener('pointerdown', down); el.removeEventListener('pointerup', stop); el.removeEventListener('pointercancel', stop); el.removeEventListener('lostpointercapture', stop); };
+  }, [onFireStart, onFireStop]);
+
   return <div className="asteroid-touch" aria-label="Mobile game controls">
     <div className="asteroid-stick-wrap">
       <span>MOVE</span>
@@ -51,7 +77,7 @@ export default function AsteroidTouchControls({ onMove, onStop, onFire }: Props)
         <i aria-hidden="true">✦</i>
       </button>
     </div>
-    <button className="asteroid-fire" type="button" onPointerDown={e => { e.preventDefault(); onFire(); }} aria-label="Fire">
+    <button ref={fireRef} className="asteroid-fire" type="button" aria-label="Fire">
       <strong>FIRE</strong><small>HOLD / TAP</small>
     </button>
   </div>;

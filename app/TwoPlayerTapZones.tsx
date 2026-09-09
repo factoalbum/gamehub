@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import './two-player-tap-zones.css';
 
 type Props = {
@@ -11,11 +11,13 @@ type Props = {
 
 function Zone({ player, label, onPress, onRelease }: { player: 1 | 2; label: string; onPress: Props['onPress']; onRelease: Props['onRelease'] }) {
   const pointers = useRef(new Set<number>());
+  const [held, setHeld] = useState(false);
   const release = (button: HTMLButtonElement, id: number) => {
     if (!pointers.current.has(id)) return;
     pointers.current.delete(id);
     if (!pointers.current.size) {
       button.classList.remove('tap-held');
+      setHeld(false);
       onRelease?.(player);
     }
   };
@@ -23,9 +25,10 @@ function Zone({ player, label, onPress, onRelease }: { player: 1 | 2; label: str
     type="button"
     className={`tap-zone tap-zone-${player}`}
     aria-label={`Player ${player} ${label}`}
+    aria-pressed={held}
     onPointerDown={(e) => {
       e.preventDefault();
-      if (!pointers.current.size) { e.currentTarget.classList.add('tap-held'); onPress(player); }
+      if (!pointers.current.size) { e.currentTarget.classList.add('tap-held'); setHeld(true); onPress(player); }
       pointers.current.add(e.pointerId);
       e.currentTarget.setPointerCapture?.(e.pointerId);
     }}
@@ -33,7 +36,7 @@ function Zone({ player, label, onPress, onRelease }: { player: 1 | 2; label: str
     onPointerCancel={(e) => { e.preventDefault(); release(e.currentTarget, e.pointerId); }}
     onLostPointerCapture={(e) => release(e.currentTarget, e.pointerId)}
   >
-    <strong>P{player}</strong><span>{label}</span><small>HOLD / TAP</small>
+    <strong>P{player}</strong><span>{label}</span><small>TAP TO JUMP</small>
   </button>;
 }
 

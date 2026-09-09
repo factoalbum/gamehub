@@ -21,10 +21,11 @@ function Zone({ player, label, onPress, onRelease }: { player: 1 | 2; label: str
       onRelease?.(player);
     }
   };
+  const actionLabel = label.trim() || 'ACTION';
   return <button
     type="button"
     className={`tap-zone tap-zone-${player}`}
-    aria-label={`Player ${player} ${label}`}
+    aria-label={`Player ${player} ${actionLabel}`}
     aria-pressed={held}
     onPointerDown={(e) => {
       e.preventDefault();
@@ -36,7 +37,7 @@ function Zone({ player, label, onPress, onRelease }: { player: 1 | 2; label: str
     onPointerCancel={(e) => { e.preventDefault(); release(e.currentTarget, e.pointerId); }}
     onLostPointerCapture={(e) => release(e.currentTarget, e.pointerId)}
   >
-    <strong>P{player}</strong><span>{label}</span><small>TAP TO JUMP</small>
+    <strong>P{player}</strong><span>{actionLabel}</span><small>TAP TO {actionLabel.toUpperCase()}</small>
   </button>;
 }
 

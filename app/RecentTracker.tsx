@@ -1,23 +1,49 @@
 'use client';
 
 import { useEffect } from 'react';
-import { usePathname } from 'next/navigation';
+import { usePathname, useSearchParams } from 'next/navigation';
 import { recentGames } from './lib/game-catalog';
 
-const routes = Object.fromEntries(recentGames.map((game) => [game.href.split('?')[0], game.id]));
+const routeIds = new Map(
+  recentGames
+    .filter((game) => !game.href.includes('?'))
+    .map((game) => [game.href.replace(/\/$/, ''), game.id]),
+);
+
+const queryIds = new Map(
+  recentGames
+    .filter((game) => game.href.includes('?'))
+    .map((game) => {
+      const url = new URL(game.href, 'https://gamehub.local');
+      return [
+        `${url.pathname.replace(/\/$/, '')}?${url.searchParams.toString()}`,
+        game.id,
+      ];
+    }),
+);
 
 export default function RecentTracker() {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
+
   useEffect(() => {
-    const id = routes[pathname];
+    const normalizedPath = pathname.replace(/\/$/, '');
+    const query = searchParams.toString();
+    const id = query
+      ? queryIds.get(`${normalizedPath}?${query}`)
+      : routeIds.get(normalizedPath);
     if (!id) return;
+
     try {
       const current = JSON.parse(localStorage.getItem('gamehub:recent') || '[]') as unknown;
-      const previous = Array.isArray(current) ? current.filter((item): item is string => typeof item === 'string') : [];
+      const previous = Array.isArray(current)
+        ? current.filter((item): item is string => typeof item === 'string')
+        : [];
       const recent = [id, ...previous.filter((item) => item !== id)].slice(0, 5);
       localStorage.setItem('gamehub:recent', JSON.stringify(recent));
       window.dispatchEvent(new CustomEvent('gamehub:recent', { detail: recent }));
     } catch {}
-  }, [pathname]);
+  }, [pathname, searchParams]);
+
   return null;
 }

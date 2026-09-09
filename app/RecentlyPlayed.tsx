@@ -16,10 +16,19 @@ const catalog: RecentGame[] = [
   { id: 'tap-target', title: 'Tap Target', emoji: '🎯', href: '/gamehub/tap-target/', category: 'Arcade' },
   { id: 'brick-breaker', title: 'Brick Breaker', emoji: '🧱', href: '/gamehub/brick-breaker/', category: 'Arcade' },
   { id: 'neon-dodge', title: 'Neon Dodge', emoji: '🟣', href: '/gamehub/neon-dodge/', category: 'Arcade' },
+  { id: 'bubble-pop', title: 'Bubble Pop', emoji: '🫧', href: '/gamehub/bubble-pop/', category: 'Arcade' },
+  { id: 'whack-attack', title: 'Whack Attack', emoji: '🔨', href: '/gamehub/whack-attack/', category: 'Arcade' },
+  { id: 'falling-blocks', title: 'Falling Blocks', emoji: '🧱', href: '/gamehub/falling-blocks/', category: 'Classic' },
+  { id: 'sky-hopper', title: 'Sky Hopper', emoji: '☁️', href: '/gamehub/sky-hopper/', category: 'Arcade' },
+  { id: 'asteroid-blaster', title: 'Asteroid Blaster', emoji: '☄️', href: '/gamehub/asteroid-blaster/', category: 'Arcade' },
+  { id: 'alien-blaster', title: 'Alien Blaster', emoji: '👾', href: '/gamehub/alien-blaster/', category: 'Arcade' },
   { id: 'hoop-duel', title: 'Hoop Duel', emoji: '🏀', href: '/gamehub/hoop-duel/', category: '2 Player' },
+  { id: 'football-random', title: 'Football Random', emoji: '⚽', href: '/gamehub/football-random/', category: '2 Player' },
   { id: 'mini-football', title: 'Mini Football', emoji: '⚽', href: '/gamehub/mini-football/', category: '2 Player' },
   { id: 'volley-duel', title: 'Volley Duel', emoji: '🏐', href: '/gamehub/volley-duel/', category: '2 Player' },
   { id: 'tennis-duel', title: 'Tennis Duel', emoji: '🎾', href: '/gamehub/tennis-duel/', category: '2 Player' },
+  { id: 'air-hockey', title: 'Air Hockey', emoji: '🏒', href: '/gamehub/air-hockey/', category: '2 Player' },
+  { id: 'racing-duel', title: 'Racing Duel', emoji: '🏎️', href: '/gamehub/racing-duel/', category: '2 Player' },
 ];
 
 function readRecent(){try{const ids=JSON.parse(localStorage.getItem('gamehub:recent')||'[]') as string[];return ids.map(id=>catalog.find(g=>g.id===id)).filter(Boolean) as RecentGame[]}catch{return []}}

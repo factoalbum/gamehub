@@ -26,6 +26,7 @@ export const freshDropGames: GameCatalogItem[] = [
   { id: 'minesweeper', label: 'Minesweeper', emoji: '💣', meta: 'Puzzle · Clear the minefield', href: '/gamehub/minesweeper/', category: 'Puzzle' },
   { id: 'tap-target', label: 'Tap Target', emoji: '🎯', meta: 'Arcade · 30-second score chase', href: '/gamehub/tap-target/', category: 'Arcade' },
   { id: 'brick-breaker', label: 'Brick Breaker', emoji: '🧱', meta: 'Arcade · Endless levels', href: '/gamehub/brick-breaker/', category: 'Arcade' },
+  { id: 'brick-quest', label: 'Brick Quest', emoji: '🎮', meta: 'Arcade · 10-level power-up run', href: '/gamehub/brick-quest/', category: 'Arcade' },
   { id: 'neon-dodge', label: 'Neon Dodge', emoji: '🌌', meta: 'Arcade · Survive 45 seconds', href: '/gamehub/neon-dodge/', category: 'Arcade' },
   { id: 'bubble-pop', label: 'Bubble Pop', emoji: '🫧', meta: 'Arcade · 45-second combo chase', href: '/gamehub/bubble-pop/', category: 'Arcade' },
   { id: 'whack-attack', label: 'Whack Attack', emoji: '🔨', meta: 'Arcade · 30-second combo chase', href: '/gamehub/whack-attack/', category: 'Arcade' },

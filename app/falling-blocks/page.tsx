@@ -8,68 +8,27 @@ type Cell = number;
 type Piece = { shape: number[][]; x: number; y: number; color: number };
 
 const W = 10, H = 20;
-const SHAPES = [
-  [[1,1,1,1]], [[1,1],[1,1]], [[0,1,0],[1,1,1]], [[1,0,0],[1,1,1]],
-  [[0,0,1],[1,1,1]], [[0,1,1],[1,1,0]], [[1,1,0],[0,1,1]],
-];
-const COLORS = ['#b7f34a','#78e4ff','#c9a7ff','#ffb86b','#ff7185','#71f6b5','#f7f9fc'];
-
+const SHAPES = [[[1,1,1,1]], [[1,1],[1,1]], [[0,1,0],[1,1,1]], [[1,0,0],[1,1,1]], [[0,0,1],[1,1,1]], [[0,1,1],[1,1,0]], [[1,1,0],[0,1,1]]];
 function emptyBoard(): Cell[][] { return Array.from({ length: H }, () => Array(W).fill(0)); }
 function rotate(shape: number[][]) { return shape[0].map((_, x) => shape.map(row => row[x]).reverse()); }
 function makePiece(): Piece { const n = Math.floor(Math.random() * SHAPES.length); const shape = SHAPES[n].map(r => [...r]); return { shape, x: Math.floor((W - shape[0].length) / 2), y: 0, color: n + 1 }; }
-function collides(board: Cell[][], piece: Piece, dx = 0, dy = 0, shape = piece.shape) {
-  return shape.some((row, sy) => row.some((v, sx) => v && (piece.x + sx + dx < 0 || piece.x + sx + dx >= W || piece.y + sy + dy >= H || (piece.y + sy + dy >= 0 && board[piece.y + sy + dy][piece.x + sx + dx]))));
-}
+function collides(board: Cell[][], piece: Piece, dx = 0, dy = 0, shape = piece.shape) { return shape.some((row, sy) => row.some((v, sx) => v && (piece.x + sx + dx < 0 || piece.x + sx + dx >= W || piece.y + sy + dy >= H || (piece.y + sy + dy >= 0 && board[piece.y + sy + dy][piece.x + sx + dx])))); }
 function merge(board: Cell[][], piece: Piece) { const next = board.map(r => [...r]); piece.shape.forEach((row, sy) => row.forEach((v, sx) => { if (v && piece.y + sy >= 0) next[piece.y + sy][piece.x + sx] = piece.color; })); return next; }
 function clearLines(board: Cell[][]) { const kept = board.filter(row => row.some(v => !v)); const cleared = H - kept.length; while (kept.length < H) kept.unshift(Array(W).fill(0)); return { board: kept, cleared }; }
 
 export default function FallingBlocksPage() {
-  const [board, setBoard] = useState(emptyBoard);
-  const [piece, setPiece] = useState<Piece>(() => makePiece());
-  const [score, setScore] = useState(0);
-  const [lines, setLines] = useState(0);
-  const [level, setLevel] = useState(1);
-  const [running, setRunning] = useState(false);
-  const [best, setBest] = useState(0);
+  const [board, setBoard] = useState(emptyBoard); const [piece, setPiece] = useState<Piece>(() => makePiece()); const [score, setScore] = useState(0); const [lines, setLines] = useState(0); const [level, setLevel] = useState(1); const [running, setRunning] = useState(false); const [best, setBest] = useState(0);
   const boardRef = useRef(board); const pieceRef = useRef(piece); const runningRef = useRef(running);
-
   useEffect(() => { setBest(Number(localStorage.getItem('gamehub:falling-blocks-best') || 0)); trackGame('game_open', 'falling-blocks'); }, []);
   useEffect(() => { boardRef.current = board; pieceRef.current = piece; runningRef.current = running; }, [board, piece, running]);
-
-  const finish = useCallback((finalScore: number) => {
-    setRunning(false); runningRef.current = false;
-    setBest(prev => { const next = Math.max(prev, finalScore); localStorage.setItem('gamehub:falling-blocks-best', String(next)); return next; });
-    trackGame('game_finish', 'falling-blocks', { score: finalScore, lines: lines });
-  }, [lines]);
-
-  const lock = useCallback((current: Piece) => {
-    const merged = merge(boardRef.current, current); const result = clearLines(merged); const gained = result.cleared ? [0,100,300,500,800][result.cleared] * level : 0;
-    const nextScore = score + gained; const nextLines = lines + result.cleared; const nextLevel = Math.floor(nextLines / 10) + 1;
-    const nextPiece = makePiece();
-    if (collides(result.board, nextPiece)) { setBoard(result.board); setScore(nextScore); setLines(nextLines); finish(nextScore); return; }
-    setBoard(result.board); setScore(nextScore); setLines(nextLines); setLevel(nextLevel); setPiece(nextPiece);
-  }, [finish, level, lines, score]);
-
-  const move = useCallback((dx: number, dy = 0) => {
-    if (!runningRef.current) return false;
-    const current = pieceRef.current; if (collides(boardRef.current, current, dx, dy)) return false;
-    const next = { ...current, x: current.x + dx, y: current.y + dy }; setPiece(next); return true;
-  }, []);
-  const rotatePiece = useCallback(() => {
-    if (!runningRef.current) return;
-    const current = pieceRef.current; const nextShape = rotate(current.shape);
-    for (const kick of [0,-1,1,-2,2]) if (!collides(boardRef.current, current, kick, 0, nextShape)) { setPiece({ ...current, x: current.x + kick, shape: nextShape }); return; }
-  }, []);
-  const drop = useCallback(() => { if (!runningRef.current) return; while (move(0, 1)) {} const current = pieceRef.current; lock({ ...current, y: current.y }); }, [lock, move]);
-
-  const start = useCallback(() => { const next = makePiece(); setBoard(emptyBoard()); setPiece(next); setScore(0); setLines(0); setLevel(1); setRunning(true); runningRef.current = true; trackGame('game_start', 'falling-blocks'); }, []);
-  useEffect(() => {
-    if (!running) return;
-    const timer = window.setInterval(() => { const current = pieceRef.current; if (collides(boardRef.current, current, 0, 1)) lock(current); else setPiece({ ...current, y: current.y + 1 }); }, Math.max(100, 720 - (level - 1) * 55));
-    return () => window.clearInterval(timer);
-  }, [running, level, lock]);
+  const finish = useCallback((finalScore: number) => { setRunning(false); runningRef.current = false; setBest(prev => { const next = Math.max(prev, finalScore); localStorage.setItem('gamehub:falling-blocks-best', String(next)); return next; }); trackGame('game_finish', 'falling-blocks', { score: finalScore, lines }); }, [lines]);
+  const lock = useCallback((current: Piece) => { const merged = merge(boardRef.current, current); const result = clearLines(merged); const gained = result.cleared ? [0,100,300,500,800][result.cleared] * level : 0; const nextScore = score + gained; const nextLines = lines + result.cleared; const nextLevel = Math.floor(nextLines / 10) + 1; const nextPiece = makePiece(); if (collides(result.board, nextPiece)) { setBoard(result.board); setScore(nextScore); setLines(nextLines); finish(nextScore); return; } setBoard(result.board); setScore(nextScore); setLines(nextLines); setLevel(nextLevel); setPiece(nextPiece); }, [finish, level, lines, score]);
+  const move = useCallback((dx: number, dy = 0) => { if (!runningRef.current) return false; const current = pieceRef.current; if (collides(boardRef.current, current, dx, dy)) return false; const next = { ...current, x: current.x + dx, y: current.y + dy }; pieceRef.current = next; setPiece(next); return true; }, []);
+  const rotatePiece = useCallback(() => { if (!runningRef.current) return; const current = pieceRef.current; const nextShape = rotate(current.shape); for (const kick of [0,-1,1,-2,2]) if (!collides(boardRef.current, current, kick, 0, nextShape)) { const next = { ...current, x: current.x + kick, shape: nextShape }; pieceRef.current = next; setPiece(next); return; } }, []);
+  const drop = useCallback(() => { if (!runningRef.current) return; let current = pieceRef.current; while (!collides(boardRef.current, current, 0, 1)) current = { ...current, y: current.y + 1 }; pieceRef.current = current; setPiece(current); lock(current); }, [lock]);
+  const start = useCallback(() => { const next = makePiece(); setBoard(emptyBoard()); setPiece(next); pieceRef.current = next; setScore(0); setLines(0); setLevel(1); setRunning(true); runningRef.current = true; trackGame('game_start', 'falling-blocks'); }, []);
+  useEffect(() => { if (!running) return; const timer = window.setInterval(() => { const current = pieceRef.current; if (collides(boardRef.current, current, 0, 1)) lock(current); else { const next = { ...current, y: current.y + 1 }; pieceRef.current = next; setPiece(next); } }, Math.max(100, 720 - (level - 1) * 55)); return () => window.clearInterval(timer); }, [running, level, lock]);
   useEffect(() => { const down = (e: KeyboardEvent) => { if (['ArrowLeft','ArrowRight','ArrowDown','ArrowUp',' '].includes(e.key)) e.preventDefault(); if (e.key === 'ArrowLeft' || e.key.toLowerCase() === 'a') move(-1); if (e.key === 'ArrowRight' || e.key.toLowerCase() === 'd') move(1); if (e.key === 'ArrowDown' || e.key.toLowerCase() === 's') move(0,1); if (e.key === 'ArrowUp' || e.key.toLowerCase() === 'w') rotatePiece(); if (e.key === ' ') drop(); if (e.key === 'Enter' && !runningRef.current) start(); }; window.addEventListener('keydown', down); return () => window.removeEventListener('keydown', down); }, [drop, move, rotatePiece, start]);
-
   const cells = useMemo(() => { const view = board.map(r => [...r]); piece.shape.forEach((row, sy) => row.forEach((v, sx) => { if (v && piece.y + sy >= 0 && piece.y + sy < H && piece.x + sx >= 0 && piece.x + sx < W) view[piece.y + sy][piece.x + sx] = piece.color; })); return view; }, [board, piece]);
   return <main className="falling-page"><div className="falling-shell"><header><a href="/gamehub/">← GAMES</a><strong>🧱 FALLING BLOCKS</strong><span>SCORE {score} · BEST {best}</span></header><section className="falling-layout"><div className="board-wrap"><div className="falling-board" role="grid" aria-label="Falling Blocks game board">{cells.flatMap((row,y) => row.map((v,x) => <div key={`${x}-${y}`} className={`block-cell ${v ? `c${v}` : ''}`} role="gridcell" />))}</div></div><aside><div className="stat"><b>{score}</b><small>SCORE</small></div><div className="stat"><b>{lines}</b><small>LINES</small></div><div className="stat"><b>{level}</b><small>LEVEL</small></div>{!running && <div className="start-card"><h1>{score ? 'STACK AGAIN.' : 'FALLING BLOCKS.'}</h1><p>Fit the pieces. Clear lines. Survive the speed.</p><button onClick={start}>{score ? 'PLAY AGAIN' : 'START GAME'}</button></div>}{running && <p className="hint">← → move · ↑ rotate · ↓ soft drop · Space hard drop</p>}</aside></section><nav className="touch-pad" aria-label="Falling Blocks touch controls"><button onClick={() => move(-1)} aria-label="Move left">←</button><button onClick={rotatePiece} aria-label="Rotate">↻</button><button onClick={() => move(0,1)} aria-label="Soft drop">↓</button><button onClick={() => move(1)} aria-label="Move right">→</button><button className="drop" onClick={drop}>DROP</button></nav></div></main>;
 }

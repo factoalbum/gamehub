@@ -13,7 +13,7 @@ const W=900,H=520;
 export default function AsteroidBlaster(){
  const canvas=useRef<HTMLCanvasElement>(null),keys=useRef(new Set<string>()),ship=useRef({x:W/2,y:H-62}),rocks=useRef<Asteroid[]>([]),bullets=useRef<Bullet[]>([]),particles=useRef<Particle[]>([]),scoreRef=useRef(0),state=useRef<State>('ready'),spawn=useRef(0),raf=useRef<number>(),fireHeld=useRef(false),lastShot=useRef(0),stick=useRef({x:0,y:0}),waveRef=useRef(1);
  const [ui,setUi]=useState<State>('ready'),[score,setScore]=useState(0),[best,setBest]=useState(0),[wave,setWave]=useState(1);
- const reset=useCallback((start=true)=>{ship.current={x:W/2,y:H-62};rocks.current=[];bullets.current=[];particles.current=[];scoreRef.current=0;spawn.current=0;fireHeld.current=false;lastShot.current=0;stick.current={x:0,y:0};waveRef.current=1;state.current=start?'play':'ready';setUi(state.current);setScore(0);setWave(1);trackGame(start?'game_restart':'game_open','asteroid-blaster');if(start)trackGame('game_start','asteroid-blaster')},[]);
+ const reset=useCallback((start=true)=>{ship.current={x:W/2,y:H-62};rocks.current=[];bullets.current=[];particles.current=[];scoreRef.current=0;spawn.current=0;fireHeld.current=false;lastShot.current=0;stick.current={x:0,y:0};waveRef.current=1;state.current=start?'play':'ready';setUi(state.current);setScore(0);setWave(1);if(start)trackGame('game_restart','asteroid-blaster')},[]);
  const fire=useCallback(()=>{if(state.current!=='play'){reset(true);return}const now=performance.now();if(now-lastShot.current<105)return;lastShot.current=now;bullets.current.push({x:ship.current.x,y:ship.current.y-30,vy:-11})},[reset]);
  const startFire=useCallback(()=>{fireHeld.current=true;fire()},[fire]);
  const stopFire=useCallback(()=>{fireHeld.current=false},[]);

@@ -83,7 +83,7 @@ export default function FootballRandom() {
 
   return <main className="random-football-page"><div className="random-football-shell">
     <header className="random-football-top"><a href="/gamehub/multiplayer/">← MULTIPLAYER</a><div><span>GAMEHUB · RANDOM SPORTS</span><h1>⚽ FOOTBALL RANDOM</h1></div><div className="random-score"><b>{score[0]}</b><i>:</i><b>{score[1]}</b></div></header>
-    <section className="random-card"><div className="random-head"><span>ONE BUTTON · 2 PLAYER</span><strong>{message}</strong><small>Tap or hold your side. Both players can jump at the same time.</small></div>
+    <section className="random-card"><div className="random-head"><span>ONE BUTTON · 2 PLAYER</span><strong>{message}</strong><small>Tap your side to jump. Both players can jump at the same time.</small></div>
       <div className="random-stage"><canvas ref={canvasRef} width={W} height={H} aria-label="Football Random game"/><div className="side-label p1">P1</div><div className="side-label p2">P2</div>{uiPhase !== 'playing' && <div className="random-overlay"><span>⚽</span><h2>{uiPhase === 'over' ? `PLAYER ${winner} WINS!` : 'READY?'}</h2><p>{uiPhase === 'over' ? `${score[0]} — ${score[1]} · Rematch instantly.` : 'One tap is all you need. First to 5 goals wins.'}</p><button onClick={() => reset(true)}>{uiPhase === 'over' ? 'REMATCH' : 'START MATCH'}</button></div>}</div>
       <TwoPlayerTapZones onPress={jump} label="JUMP" />
       <p className="random-note">ONE DEVICE · TWO PLAYERS · SIMULTANEOUS TOUCH</p>

@@ -38,7 +38,7 @@ export default function AlienBlasterPage() {
   const start = useCallback(() => {
     const s = stateRef.current;
     s.running = true; s.score = 0; s.lives = 3; s.wave = 1; s.playerX = W / 2; s.shots = []; s.enemyShots = []; s.enemies = makeWave(1); s.enemyDir = 1; s.cooldown = 0; s.enemyFireTimer = 42; s.hitCooldown = 0;
-    fireHeld.current = false; sync(); setStatus('playing'); trackGame('game_start', 'alien-blaster');
+    fireHeld.current = false; keys.current.clear(); sync(); setStatus('playing'); trackGame('game_start', 'alien-blaster');
   }, [sync]);
   const shoot = useCallback(() => {
     const s = stateRef.current;
@@ -150,10 +150,10 @@ export default function AlienBlasterPage() {
     return () => { window.removeEventListener('resize', resize); if (frameRef.current) cancelAnimationFrame(frameRef.current); };
   }, [sync, shoot, status]);
 
-  const pressFire = () => { fireHeld.current = true; shoot(); };
-  const releaseFire = () => { fireHeld.current = false; };
-  const pressMove = (side: 'left' | 'right') => keys.current.add(side);
-  const releaseMove = (side: 'left' | 'right') => keys.current.delete(side);
+  const pressFire = (e: React.PointerEvent<HTMLButtonElement>) => { e.currentTarget.setPointerCapture(e.pointerId); fireHeld.current = true; shoot(); };
+  const releaseFire = (e: React.PointerEvent<HTMLButtonElement>) => { if (e.currentTarget.hasPointerCapture(e.pointerId)) e.currentTarget.releasePointerCapture(e.pointerId); fireHeld.current = false; };
+  const pressMove = (side: 'left' | 'right', e: React.PointerEvent<HTMLButtonElement>) => { e.currentTarget.setPointerCapture(e.pointerId); keys.current.add(side); };
+  const releaseMove = (side: 'left' | 'right', e: React.PointerEvent<HTMLButtonElement>) => { if (e.currentTarget.hasPointerCapture(e.pointerId)) e.currentTarget.releasePointerCapture(e.pointerId); keys.current.delete(side); };
 
-  return <main className="alien-page"><div className="alien-shell"><div className="alien-top"><a href="/gamehub/">← GAMES</a><span>☄️ ALIEN BLASTER</span><b>WAVE {wave} · {score} · ❤️ {lives}</b></div><div className="alien-stage"><canvas ref={canvasRef} width={W} height={H} aria-label="Alien Blaster game"/></div><div className="alien-controls"><button onPointerDown={() => pressMove('left')} onPointerUp={() => releaseMove('left')} onPointerCancel={() => releaseMove('left')} onPointerLeave={() => releaseMove('left')}>←</button><button className="fire" onPointerDown={pressFire} onPointerUp={releaseFire} onPointerCancel={releaseFire} onPointerLeave={releaseFire}>HOLD FIRE</button><button onPointerDown={() => pressMove('right')} onPointerUp={() => releaseMove('right')} onPointerCancel={() => releaseMove('right')} onPointerLeave={() => releaseMove('right')}>→</button></div><div className="alien-actions"><button onClick={start}>{status === 'over' ? 'PLAY AGAIN' : status === 'playing' ? 'RESTART RUN' : 'START GAME'}</button><p>Move with A/D or ← → · Hold Space/F or FIRE · Dodge enemy fire · Clear waves to increase the challenge.</p></div></div></main>;
+  return <main className="alien-page"><div className="alien-shell"><div className="alien-top"><a href="/gamehub/">← GAMES</a><span>☄️ ALIEN BLASTER</span><b>WAVE {wave} · {score} · ❤️ {lives}</b></div><div className="alien-stage"><canvas ref={canvasRef} width={W} height={H} aria-label="Alien Blaster game"/></div><div className="alien-controls"><button onPointerDown={e => pressMove('left', e)} onPointerUp={e => releaseMove('left', e)} onPointerCancel={e => releaseMove('left', e)} onLostPointerCapture={() => keys.current.delete('left')}>←</button><button className="fire" onPointerDown={pressFire} onPointerUp={releaseFire} onPointerCancel={releaseFire} onLostPointerCapture={() => { fireHeld.current = false; }}>HOLD FIRE</button><button onPointerDown={e => pressMove('right', e)} onPointerUp={e => releaseMove('right', e)} onPointerCancel={e => releaseMove('right', e)} onLostPointerCapture={() => keys.current.delete('right')}>→</button></div><div className="alien-actions"><button onClick={start}>{status === 'over' ? 'PLAY AGAIN' : status === 'playing' ? 'RESTART RUN' : 'START GAME'}</button><p>Move with A/D or ← → · Hold Space/F or FIRE · Dodge enemy fire · Clear waves to increase the challenge.</p></div></div></main>;
 }

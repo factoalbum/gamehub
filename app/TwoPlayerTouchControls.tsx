@@ -1,7 +1,7 @@
 'use client';
 
 import './two-player-touch-controls.css';
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 
 export type TouchAction = 'left' | 'right' | 'up' | 'down' | 'action' | 'boost';
 
@@ -26,12 +26,14 @@ type ButtonProps = {
 
 function ControlButton({ player, action, label, ariaLabel, onPress, onRelease }: ButtonProps) {
   const pointers = useRef(new Set<number>());
+  const [held, setHeld] = useState(false);
 
   const releasePointer = (button: HTMLButtonElement, pointerId: number) => {
     if (!pointers.current.has(pointerId)) return;
     pointers.current.delete(pointerId);
     if (pointers.current.size === 0) {
       button.classList.remove('touch-held');
+      setHeld(false);
       onRelease(player, action);
     }
   };
@@ -41,10 +43,12 @@ function ControlButton({ player, action, label, ariaLabel, onPress, onRelease }:
       type="button"
       className={`touch-key touch-${action}`}
       aria-label={`Player ${player} ${ariaLabel ?? label}`}
+      aria-pressed={held}
       onPointerDown={(e) => {
         e.preventDefault();
         if (pointers.current.size === 0) {
           e.currentTarget.classList.add('touch-held');
+          setHeld(true);
           onPress(player, action);
         }
         pointers.current.add(e.pointerId);

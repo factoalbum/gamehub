@@ -9,37 +9,29 @@ permissions:
 
 jobs:
   fix:
-    if: github.event.head_commit.message != 'fix: repair memory grid answer state'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - name: Patch Memory Grid
+        shell: python
         run: |
-          python3 - <<'PY'
           from pathlib import Path
           p = Path('app/page.tsx')
           s = p.read_text()
-          old = "const [level, setLevel] = useState(1); const [pattern, setPattern] = useState<number[]>([]); const [input, setInput] = useState<number[]>([]); const [playing, setPlaying] = useState(false); const [message, setMessage] = useState(''); const [best, saveBest] = useBest('memory-level'); const timer = useRef<ReturnType<typeof setTimeout> | null>(null);"
-          new = "const [level, setLevel] = useState(1); const [pattern, setPattern] = useState<number[]>([]); const patternRef = useRef<number[]>([]); const [input, setInput] = useState<number[]>([]); const [playing, setPlaying] = useState(false); const [message, setMessage] = useState(''); const [best, saveBest] = useBest('memory-level'); const timer = useRef<ReturnType<typeof setTimeout> | null>(null);"
-          if old not in s:
-              raise SystemExit('memory state marker not found')
-          s = s.replace(old, new, 1)
-          old = "setPattern(picks); setInput([]); setPlaying(false); setMessage('MEMORIZE'); timer.current = setTimeout(() => { setPattern([]); setPlaying(true); setMessage('YOUR TURN'); }, Math.max(750, 1600 - nextLevel * 55));"
-          new = "patternRef.current = picks; setPattern(picks); setInput([]); setPlaying(false); setMessage('MEMORIZE'); timer.current = setTimeout(() => { setPattern([]); setPlaying(true); setMessage('YOUR TURN'); }, Math.max(750, 1600 - nextLevel * 55));"
-          if old not in s:
-              raise SystemExit('memory start marker not found')
-          s = s.replace(old, new, 1)
-          old = "if (!pattern.includes(n)) { setPlaying(false); setMessage('WRONG TILE — TRY AGAIN'); return; } if (next.length === pattern.length) { setPlaying(false); saveBest(level); setMessage('PERFECT!'); timer.current = setTimeout(() => { setLevel(v => v + 1); startLevel(level + 1); }, 650); }"
-          new = "const answer = patternRef.current; if (!answer.includes(n)) { setPlaying(false); setMessage('WRONG TILE — TRY AGAIN'); return; } if (next.length === answer.length) { setPlaying(false); saveBest(level); setMessage('PERFECT!'); timer.current = setTimeout(() => { setLevel(v => v + 1); startLevel(level + 1); }, 650); }"
-          if old not in s:
-              raise SystemExit('memory pick marker not found')
-          s = s.replace(old, new, 1)
+          replacements = [
+            ("const [level, setLevel] = useState(1); const [pattern, setPattern] = useState<number[]>([]); const [input, setInput] = useState<number[]>([]); const [playing, setPlaying] = useState(false); const [message, setMessage] = useState(''); const [best, saveBest] = useBest('memory-level'); const timer = useRef<ReturnType<typeof setTimeout> | null>(null);", "const [level, setLevel] = useState(1); const [pattern, setPattern] = useState<number[]>([]); const patternRef = useRef<number[]>([]); const [input, setInput] = useState<number[]>([]); const [playing, setPlaying] = useState(false); const [message, setMessage] = useState(''); const [best, saveBest] = useBest('memory-level'); const timer = useRef<ReturnType<typeof setTimeout> | null>(null);"),
+            ("setPattern(picks); setInput([]); setPlaying(false); setMessage('MEMORIZE'); timer.current = setTimeout(() => { setPattern([]); setPlaying(true); setMessage('YOUR TURN'); }, Math.max(750, 1600 - nextLevel * 55));", "patternRef.current = picks; setPattern(picks); setInput([]); setPlaying(false); setMessage('MEMORIZE'); timer.current = setTimeout(() => { setPattern([]); setPlaying(true); setMessage('YOUR TURN'); }, Math.max(750, 1600 - nextLevel * 55));"),
+            ("if (!pattern.includes(n)) { setPlaying(false); setMessage('WRONG TILE — TRY AGAIN'); return; } if (next.length === pattern.length) { setPlaying(false); saveBest(level); setMessage('PERFECT!'); timer.current = setTimeout(() => { setLevel(v => v + 1); startLevel(level + 1); }, 650); }", "const answer = patternRef.current; if (!answer.includes(n)) { setPlaying(false); setMessage('WRONG TILE — TRY AGAIN'); return; } if (next.length === answer.length) { setPlaying(false); saveBest(level); setMessage('PERFECT!'); timer.current = setTimeout(() => { setLevel(v => v + 1); startLevel(level + 1); }, 650); }")
+          ]
+          for old, new in replacements:
+              if old not in s:
+                  raise SystemExit('expected Memory Grid source marker was not found')
+              s = s.replace(old, new, 1)
           p.write_text(s)
-          PY
-      - name: Commit fix
+      - name: Commit repaired source
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add app/page.tsx
-          git commit -m 'fix: repair memory grid answer state'
-          git push
+          git diff --cached --quiet || git commit -m 'fix: repair memory grid answer state'
+          git push origin HEAD:main

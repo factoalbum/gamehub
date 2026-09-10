@@ -4,6 +4,7 @@ import './sports.css';
 export const metadata: Metadata = {
   title: '2 Player Sports Games — Play Together | GameHub',
   description: 'Play free local 2-player sports arcade games in your browser. Basketball, football, volleyball, tennis, air hockey and racing — no download or signup.',
+  alternates: { canonical: '/sports/' },
 };
 
 const sports = [

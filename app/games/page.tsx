@@ -12,6 +12,19 @@ export const metadata: Metadata = {
 const allGames = Array.from(new Map([...recentGames, ...freshDropGames, ...multiplayerGames].map(game => [game.id, game])).values());
 const groups = ['Arcade', 'Puzzle', 'Brain', 'Classic', '2 Player'];
 
+const itemListSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'ItemList',
+  name: 'GameHub free browser games',
+  numberOfItems: allGames.length,
+  itemListElement: allGames.map((game, index) => ({
+    '@type': 'ListItem',
+    position: index + 1,
+    name: game.label,
+    url: `https://factoalbum.github.io${game.href}`,
+  })),
+};
+
 export default function GamesPage() {
   return (
     <main className="games-directory">
@@ -19,6 +32,7 @@ export default function GamesPage() {
       <section className="directory-hero"><span className="directory-kicker">THE GAME LIBRARY</span><h1>Pick a game.<br /><em>Start playing.</em></h1><p>{allGames.length} free games, ready in your browser. No downloads, no accounts.</p></section>
       <div className="directory-groups"><GameDirectory games={allGames} groups={groups} /></div>
       <footer className="directory-footer"><a href="/gamehub/">GAMEHUB</a><span>Free browser games · Play instantly</span><nav aria-label="Site information"><a href="/gamehub/faq/">FAQ</a><a href="/gamehub/privacy/">Privacy</a><a href="/gamehub/terms/">Terms</a></nav></footer>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListSchema) }} />
     </main>
   );
 }

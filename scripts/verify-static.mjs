@@ -57,9 +57,28 @@ const missing = required.filter(value => {
   return !routeExists(value);
 });
 
-if (broken.length || missing.length) {
+const robotsPath = join(outDir, 'robots.txt');
+const manifestPath = join(outDir, 'manifest.webmanifest');
+const robots = existsSync(robotsPath) ? readFileSync(robotsPath, 'utf8') : '';
+const manifest = existsSync(manifestPath) ? readFileSync(manifestPath, 'utf8') : '';
+const metadataErrors = [];
+if (robots && !robots.includes('Sitemap: https://factoalbum.github.io/gamehub/sitemap.xml')) {
+  metadataErrors.push('robots.txt is missing the canonical sitemap declaration.');
+}
+if (manifest) {
+  try {
+    const parsed = JSON.parse(manifest);
+    if (parsed.start_url !== '/gamehub/') metadataErrors.push('manifest.webmanifest must use /gamehub/ as start_url.');
+    if (parsed.name !== 'GameHub — Free Browser Games') metadataErrors.push('manifest.webmanifest has an unexpected app name.');
+  } catch {
+    metadataErrors.push('manifest.webmanifest is not valid JSON.');
+  }
+}
+
+if (broken.length || missing.length || metadataErrors.length) {
   if (broken.length) console.error(`Broken internal references (${broken.length}):\n${broken.join('\n')}`);
   if (missing.length) console.error(`Missing required outputs (${missing.length}):\n${missing.join('\n')}`);
+  if (metadataErrors.length) console.error(`Static metadata errors (${metadataErrors.length}):\n${metadataErrors.join('\n')}`);
   process.exit(1);
 }
 

@@ -1,0 +1,3 @@
+import type { Metadata } from 'next';
+export const metadata: Metadata={title:'Number Merge — Free 2048-Style Puzzle Game',description:'Play Number Merge, a free browser puzzle game. Slide and merge matching numbers to build the highest tile you can.',alternates:{canonical:'/games/number-merge/'}};
+export default function NumberMergeSEO(){return <main className="legal-page"><a href="/gamehub/games/">← All Games</a><h1>Number Merge</h1><p>Slide matching numbers together, merge them into larger values and chase your highest score.</p><p>A quick, free browser puzzle game with no download or account required.</p><a className="primary" href="/gamehub/?game=number-merge">PLAY NUMBER MERGE</a></main>}

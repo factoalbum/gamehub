@@ -19,11 +19,12 @@ type ButtonProps = {
   player: 1 | 2;
   action: TouchAction;
   label: string;
+  ariaLabel?: string;
   onPress: Props['onPress'];
   onRelease: Props['onRelease'];
 };
 
-function ControlButton({ player, action, label, onPress, onRelease }: ButtonProps) {
+function ControlButton({ player, action, label, ariaLabel, onPress, onRelease }: ButtonProps) {
   const pointers = useRef(new Set<number>());
 
   const releasePointer = (button: HTMLButtonElement, pointerId: number) => {
@@ -39,7 +40,7 @@ function ControlButton({ player, action, label, onPress, onRelease }: ButtonProp
     <button
       type="button"
       className={`touch-key touch-${action}`}
-      aria-label={`Player ${player} ${label}`}
+      aria-label={`Player ${player} ${ariaLabel ?? label}`}
       onPointerDown={(e) => {
         e.preventDefault();
         if (pointers.current.size === 0) {
@@ -82,10 +83,10 @@ export default function TwoPlayerTouchControls({
         <span>HOLD TO PLAY</span>
       </div>
       <div className="touch-pad">
-        <ControlButton player={player} action="left" label="←" onPress={onPress} onRelease={onRelease} />
+        <ControlButton player={player} action="left" label="←" ariaLabel="MOVE LEFT" onPress={onPress} onRelease={onRelease} />
         <ControlButton player={player} action="up" label={upLabel} onPress={onPress} onRelease={onRelease} />
-        <ControlButton player={player} action="right" label="→" onPress={onPress} onRelease={onRelease} />
-        {showDown && <ControlButton player={player} action="down" label="↓" onPress={onPress} onRelease={onRelease} />}
+        <ControlButton player={player} action="right" label="→" ariaLabel="MOVE RIGHT" onPress={onPress} onRelease={onRelease} />
+        {showDown && <ControlButton player={player} action="down" label="↓" ariaLabel="MOVE DOWN" onPress={onPress} onRelease={onRelease} />}
       </div>
       <div className="touch-actions">
         <ControlButton player={player} action="action" label={actionLabelForPlayer} onPress={onPress} onRelease={onRelease} />

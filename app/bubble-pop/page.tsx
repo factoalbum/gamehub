@@ -48,10 +48,13 @@ export default function BubblePopPage() {
     resize(); window.addEventListener('resize', resize);
     let last = performance.now();
     const tick = (now: number) => {
-      const dt = Math.min(2, (now - last) / 16.67 || 1); last = now;
+      const elapsedMs = Math.max(0, now - last);
+      const dt = Math.min(2, elapsedMs / 16.67 || 1);
+      last = now;
       const s = stateRef.current;
       if (s.running) {
-        s.timeLeft -= (now - (last - dt * 16.67));
+        // Use the real elapsed wall-clock time for the countdown so throttled/background tabs cannot stretch a 45s round.
+        s.timeLeft -= elapsedMs;
         for (const b of s.bubbles) {
           b.x += b.vx * dt; b.y += b.vy * dt;
           if (b.x < b.r || b.x > W - b.r) { b.vx *= -1; b.x = Math.max(b.r, Math.min(W - b.r, b.x)); }

@@ -62,8 +62,9 @@ export default function Minesweeper() {
   }, [best, seconds]);
 
   function open(i: number) {
-    if (status === 'won' || status === 'lost' || board[i]?.flagged) return;
+    if (status === 'won' || status === 'lost') return;
     if (flagMode) { toggleFlag(undefined, i); return; }
+    if (board[i]?.flagged) return;
     let next = board;
     if (!started) { next = buildBoard(i); setStarted(true); setStatus('playing'); trackGame('game_start', 'minesweeper'); }
     if (next[i].mine) { const shown = next.map(c => ({ ...c, revealed: c.mine ? true : c.revealed })); finish(shown, false); return; }
@@ -74,8 +75,8 @@ export default function Minesweeper() {
 
   function toggleFlag(e: React.MouseEvent | undefined, i: number) {
     e?.preventDefault();
-    if (status === 'won' || status === 'lost' || (!started && flags >= MINES)) return;
-    setBoard(current => current.map((c, n) => n === i && !c.revealed && (!c.flagged || flags < MINES) ? { ...c, flagged: !c.flagged } : c));
+    if (status === 'won' || status === 'lost' || (!board[i]?.flagged && flags >= MINES)) return;
+    setBoard(current => current.map((c, n) => n === i && !c.revealed ? { ...c, flagged: !c.flagged } : c));
   }
 
   const statusText = status === 'ready' ? 'Tap a tile to start. Your first reveal is always safe.' : status === 'playing' ? 'Clear the board without hitting a mine.' : status === 'won' ? 'Board cleared. That was clean.' : 'Boom. The mines got you.';

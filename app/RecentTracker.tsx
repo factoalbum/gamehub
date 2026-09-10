@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
-import { usePathname, useSearchParams } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import { recentGames } from './lib/game-catalog';
 
 const routeIds = new Map(
@@ -41,19 +41,18 @@ function publishRecent(id: string) {
 
 export default function RecentTracker() {
   const pathname = usePathname();
-  const searchParams = useSearchParams();
-  const query = searchParams.toString();
 
   useEffect(() => {
     const normalizedPath = pathname.replace(/\/$/, '');
-    const gameParam = searchParams.get('game');
+    const params = new URLSearchParams(window.location.search);
+    const gameParam = params.get('game');
     const id = gameParam
       ? queryGameIds.get(gameParam)
-      : query
+      : params.toString()
         ? undefined
         : routeIds.get(normalizedPath);
     if (id) publishRecent(id);
-  }, [pathname, query]);
+  }, [pathname]);
 
   useEffect(() => {
     const syncFromAnotherTab = (event: StorageEvent) => {

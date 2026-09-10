@@ -10,17 +10,34 @@ const routeIds = new Map(
     .map((game) => [game.href.replace(/\/$/, ''), game.id]),
 );
 
-const queryIds = new Map(
+const queryGameIds = new Map(
   recentGames
     .filter((game) => game.href.includes('?'))
     .map((game) => {
       const url = new URL(game.href, 'https://gamehub.local');
-      return [
-        `${url.pathname.replace(/\/$/, '')}?${url.searchParams.toString()}`,
-        game.id,
-      ];
-    }),
+      return [url.searchParams.get('game'), game.id] as const;
+    })
+    .filter((entry): entry is readonly [string, string] => Boolean(entry[0])),
 );
+
+function readRecent(): string[] {
+  try {
+    const current = JSON.parse(localStorage.getItem('gamehub:recent') || '[]') as unknown;
+    return Array.isArray(current)
+      ? current.filter((item): item is string => typeof item === 'string').slice(0, 5)
+      : [];
+  } catch {
+    return [];
+  }
+}
+
+function publishRecent(id: string) {
+  const recent = [id, ...readRecent().filter((item) => item !== id)].slice(0, 5);
+  try {
+    localStorage.setItem('gamehub:recent', JSON.stringify(recent));
+    window.dispatchEvent(new CustomEvent('gamehub:recent', { detail: recent }));
+  } catch {}
+}
 
 export default function RecentTracker() {
   const pathname = usePathname();
@@ -29,21 +46,28 @@ export default function RecentTracker() {
 
   useEffect(() => {
     const normalizedPath = pathname.replace(/\/$/, '');
-    const id = query
-      ? queryIds.get(`${normalizedPath}?${query}`)
-      : routeIds.get(normalizedPath);
-    if (!id) return;
+    const gameParam = searchParams.get('game');
+    const id = gameParam
+      ? queryGameIds.get(gameParam)
+      : query
+        ? undefined
+        : routeIds.get(normalizedPath);
+    if (id) publishRecent(id);
+  }, [pathname, query, searchParams]);
 
-    try {
-      const current = JSON.parse(localStorage.getItem('gamehub:recent') || '[]') as unknown;
-      const previous = Array.isArray(current)
-        ? current.filter((item): item is string => typeof item === 'string')
-        : [];
-      const recent = [id, ...previous.filter((item) => item !== id)].slice(0, 5);
-      localStorage.setItem('gamehub:recent', JSON.stringify(recent));
-      window.dispatchEvent(new CustomEvent('gamehub:recent', { detail: recent }));
-    } catch {}
-  }, [pathname, query]);
+  useEffect(() => {
+    const syncFromAnotherTab = (event: StorageEvent) => {
+      if (event.key !== 'gamehub:recent' || !event.newValue) return;
+      try {
+        const recent = JSON.parse(event.newValue) as unknown;
+        if (!Array.isArray(recent)) return;
+        window.dispatchEvent(new CustomEvent('gamehub:recent', { detail: recent }));
+      } catch {}
+    };
+
+    window.addEventListener('storage', syncFromAnotherTab);
+    return () => window.removeEventListener('storage', syncFromAnotherTab);
+  }, []);
 
   return null;
 }

@@ -1,5 +1,5 @@
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
-import { join, relative, resolve } from 'node:path';
+import { join, resolve } from 'node:path';
 
 const outDir = resolve('out');
 const basePath = '/gamehub';
@@ -22,9 +22,16 @@ function walk(dir) {
 function routeExists(pathname) {
   const path = pathname.split('?')[0].split('#')[0];
   if (!path.startsWith(basePath + '/') && path !== basePath) return true;
+
   const withoutBase = path === basePath ? '' : path.slice(basePath.length);
   const normalized = withoutBase.replace(/^\//, '').replace(/\/$/, '');
   if (!normalized) return existsSync(join(outDir, 'index.html'));
+
+  // Absolute asset URLs (for example /gamehub/_next/... or /gamehub/manifest.webmanifest)
+  // are valid internal references too. Check the exported file before treating the
+  // value as a route so the static verifier works with Next.js asset URLs.
+  if (existsSync(join(outDir, normalized))) return true;
+
   return existsSync(join(outDir, normalized, 'index.html')) || existsSync(join(outDir, normalized + '.html'));
 }
 

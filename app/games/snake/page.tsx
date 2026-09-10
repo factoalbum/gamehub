@@ -1,0 +1,3 @@
+import type { Metadata } from 'next';
+export const metadata: Metadata={title:'Snake — Free Classic Browser Game',description:'Play Snake for free in your browser. Eat the food, grow longer and survive as long as possible.',alternates:{canonical:'/games/snake/'}};
+export default function SnakeSEO(){return <main className="legal-page"><a href="/gamehub/games/">← All Games</a><h1>Snake</h1><p>The classic Snake game is ready to play in your browser. Eat the stars, grow your snake and avoid the walls and your own body.</p><p>Works on desktop and mobile-friendly browsers with no download required.</p><a className="primary" href="/gamehub/?game=snake">PLAY SNAKE</a></main>}

@@ -35,6 +35,9 @@ jobs:
       - name: Build static site
         run: npm run build
 
+      - name: Verify static site integrity
+        run: npm run verify:static
+
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v6
 

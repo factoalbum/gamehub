@@ -4,6 +4,7 @@ import './share-score.css';
 import './legal.css';
 import './accessibility.css';
 import type { Metadata, Viewport } from 'next';
+import { Suspense } from 'react';
 import HomePromos from './HomePromos';
 import GameUrlBridge from './GameUrlBridge';
 import ShareScore from './ShareScore';
@@ -36,5 +37,5 @@ const websiteSchema = {
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return <html lang="en"><body><GameUrlBridge /><RecentTracker />{children}<HomePromos /><ShareScore /><script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }} /></body></html>;
+  return <html lang="en"><body><GameUrlBridge /><Suspense fallback={null}><RecentTracker /></Suspense>{children}<HomePromos /><ShareScore /><script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }} /></body></html>;
 }

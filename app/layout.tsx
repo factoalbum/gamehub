@@ -16,6 +16,7 @@ export const metadata: Metadata = {
   title: { default: 'GameHub — Free Browser Games', template: '%s | GameHub' },
   description: 'Play free browser games instantly. Arcade, puzzle, brain, classic and local 2-player games on phone, tablet and desktop — no download required.',
   applicationName: 'GameHub',
+  manifest: '/gamehub/manifest.webmanifest',
   keywords: ['free browser games', 'online games', 'arcade games', '2 player games', 'multiplayer games', 'puzzle games', 'games to play', 'mobile games'],
   alternates: { canonical: '/' },
   robots: { index: true, follow: true, googleBot: { index: true, follow: true, 'max-image-preview': 'large', 'max-snippet': -1, 'max-video-preview': -1 } },
@@ -26,6 +27,14 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = { themeColor: '#b7f34a', colorScheme: 'dark', width: 'device-width', initialScale: 1 };
 
+const websiteSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  name: 'GameHub',
+  url: siteUrl + '/',
+  description: 'Free browser games you can play instantly on phone, tablet and desktop.',
+};
+
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return <html lang="en"><body><GameUrlBridge /><RecentTracker />{children}<HomePromos /><ShareScore /></body></html>;
+  return <html lang="en"><body><GameUrlBridge /><RecentTracker />{children}<HomePromos /><ShareScore /><script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }} /></body></html>;
 }

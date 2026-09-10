@@ -1,0 +1,1 @@
+export default function NotFound() { return <main className="legal-page"><div aria-hidden="true" style={{ fontSize: '4rem' }}>🎮</div><h1>Game not found</h1><p>That page doesn't exist or the game may have moved.</p><a className="primary" href="/gamehub/games/">Browse all games</a><a href="/gamehub/">Back to GameHub</a></main>; }

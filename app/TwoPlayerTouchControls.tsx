@@ -1,7 +1,7 @@
 'use client';
 
 import './two-player-touch-controls.css';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 export type TouchAction = 'left' | 'right' | 'up' | 'down' | 'action' | 'boost';
 
@@ -25,8 +25,17 @@ type ButtonProps = {
 };
 
 function ControlButton({ player, action, label, ariaLabel, onPress, onRelease }: ButtonProps) {
+  const buttonRef = useRef<HTMLButtonElement | null>(null);
   const pointers = useRef(new Set<number>());
   const [held, setHeld] = useState(false);
+
+  const releaseAll = () => {
+    if (pointers.current.size === 0) return;
+    pointers.current.clear();
+    buttonRef.current?.classList.remove('touch-held');
+    setHeld(false);
+    onRelease(player, action);
+  };
 
   const releasePointer = (button: HTMLButtonElement, pointerId: number) => {
     if (!pointers.current.has(pointerId)) return;
@@ -38,12 +47,29 @@ function ControlButton({ player, action, label, ariaLabel, onPress, onRelease }:
     }
   };
 
+  useEffect(() => {
+    const releaseOnFocusLoss = () => releaseAll();
+    const releaseOnVisibilityChange = () => {
+      if (document.hidden) releaseAll();
+    };
+
+    window.addEventListener('blur', releaseOnFocusLoss);
+    document.addEventListener('visibilitychange', releaseOnVisibilityChange);
+    return () => {
+      window.removeEventListener('blur', releaseOnFocusLoss);
+      document.removeEventListener('visibilitychange', releaseOnVisibilityChange);
+      releaseAll();
+    };
+  });
+
   return (
     <button
+      ref={buttonRef}
       type="button"
       className={`touch-key touch-${action}`}
       aria-label={`Player ${player} ${ariaLabel ?? label}`}
       aria-pressed={held}
+      onContextMenu={(e) => e.preventDefault()}
       onPointerDown={(e) => {
         e.preventDefault();
         if (pointers.current.size === 0) {

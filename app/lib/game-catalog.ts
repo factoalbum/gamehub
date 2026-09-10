@@ -5,6 +5,8 @@ export type GameCatalogItem = {
   meta: string;
   href: string;
   category: string;
+  /** Optional multiplayer card label; kept in the catalog to avoid page-level duplication. */
+  tag?: string;
 };
 
 /**
@@ -13,13 +15,13 @@ export type GameCatalogItem = {
  * hosting friendly.
  */
 export const multiplayerGames: GameCatalogItem[] = [
-  { id: 'hoop-duel', label: 'Hoop Duel', emoji: '🏀', meta: 'Basketball · 1P / 2P', href: '/gamehub/hoop-duel/', category: '2 Player' },
-  { id: 'football-random', label: 'Football Random', emoji: '⚽', meta: 'Football · 2 players', href: '/gamehub/football-random/', category: '2 Player' },
-  { id: 'mini-football', label: 'Mini Football', emoji: '⚽', meta: 'Football · 2 players', href: '/gamehub/mini-football/', category: '2 Player' },
-  { id: 'volley-duel', label: 'Volley Duel', emoji: '🏐', meta: 'Volleyball · 2 players', href: '/gamehub/volley-duel/', category: '2 Player' },
-  { id: 'tennis-duel', label: 'Tennis Duel', emoji: '🎾', meta: 'Tennis · 2 players', href: '/gamehub/tennis-duel/', category: '2 Player' },
-  { id: 'air-hockey', label: 'Air Hockey', emoji: '🏒', meta: 'Hockey · 2 players', href: '/gamehub/air-hockey/', category: '2 Player' },
-  { id: 'racing-duel', label: 'Racing Duel', emoji: '🏎️', meta: 'Racing · 2 players', href: '/gamehub/racing-duel/', category: '2 Player' },
+  { id: 'hoop-duel', label: 'Hoop Duel', emoji: '🏀', meta: 'Basketball · 1P / 2P', href: '/gamehub/hoop-duel/', category: '2 Player', tag: 'ONE BUTTON' },
+  { id: 'football-random', label: 'Football Random', emoji: '⚽', meta: 'Football · 2 players', href: '/gamehub/football-random/', category: '2 Player', tag: 'ONE BUTTON' },
+  { id: 'mini-football', label: 'Mini Football', emoji: '⚽', meta: 'Football · 2 players', href: '/gamehub/mini-football/', category: '2 Player', tag: 'LOCAL' },
+  { id: 'volley-duel', label: 'Volley Duel', emoji: '🏐', meta: 'Volleyball · 2 players', href: '/gamehub/volley-duel/', category: '2 Player', tag: 'LOCAL' },
+  { id: 'tennis-duel', label: 'Tennis Duel', emoji: '🎾', meta: 'Tennis · 2 players', href: '/gamehub/tennis-duel/', category: '2 Player', tag: 'LOCAL' },
+  { id: 'air-hockey', label: 'Air Hockey', emoji: '🏒', meta: 'Hockey · 2 players', href: '/gamehub/air-hockey/', category: '2 Player', tag: 'LOCAL' },
+  { id: 'racing-duel', label: 'Racing Duel', emoji: '🏎️', meta: 'Racing · 2 players', href: '/gamehub/racing-duel/', category: '2 Player', tag: 'LOCAL' },
 ];
 
 export const freshDropGames: GameCatalogItem[] = [

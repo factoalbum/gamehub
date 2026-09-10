@@ -1,0 +1,3 @@
+import type { Metadata } from 'next';
+export const metadata: Metadata={title:'Memory Grid — Free Memory Game',description:'Play Memory Grid, a free browser memory game. Memorize the pattern, repeat the tiles and reach higher levels.',alternates:{canonical:'/games/memory-grid/'}};
+export default function MemoryGridSEO(){return <main className="legal-page"><a href="/gamehub/games/">← All Games</a><h1>Memory Grid</h1><p>Memorize a growing pattern of tiles and repeat it correctly. Each level gets harder.</p><p>Free to play in your browser on phone, tablet or desktop.</p><a className="primary" href="/gamehub/?game=memory-grid">PLAY MEMORY GRID</a></main>}

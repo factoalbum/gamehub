@@ -1,0 +1,3 @@
+import type { Metadata } from 'next';
+export const metadata: Metadata={title:'Color Match — Free Color Puzzle Game',description:'Play Color Match, a fast free browser puzzle game. Spot the odd color before the timer runs out.',alternates:{canonical:'/games/color-match/'}};
+export default function ColorMatchSEO(){return <main className="legal-page"><a href="/gamehub/games/">← All Games</a><h1>Color Match</h1><p>Spot the odd color as quickly as possible before time runs out. Test your visual attention and chase a higher score.</p><p>Play instantly in your browser on desktop or mobile.</p><a className="primary" href="/gamehub/?game=color-match">PLAY COLOR MATCH</a></main>}

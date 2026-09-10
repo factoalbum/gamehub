@@ -2,6 +2,7 @@ import './globals.css';
 import './polish.css';
 import './share-score.css';
 import './legal.css';
+import './accessibility.css';
 import type { Metadata, Viewport } from 'next';
 import HomePromos from './HomePromos';
 import GameUrlBridge from './GameUrlBridge';

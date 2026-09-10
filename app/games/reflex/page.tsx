@@ -1,0 +1,3 @@
+import type { Metadata } from 'next';
+export const metadata: Metadata={title:'Reflex Rush — Fast Reaction Game',description:'Play Reflex Rush, a free browser reaction game. Wait for the signal and tap as fast as you can to chase your best time.',alternates:{canonical:'/games/reflex/'}};
+export default function ReflexSEO(){return <main className="legal-page"><a href="/gamehub/games/">← All Games</a><h1>Reflex Rush</h1><p>Test your reaction speed in this fast, free browser reflex game. Wait for the screen to signal and tap immediately.</p><p>No download or account required. Play on mobile or desktop.</p><a className="primary" href="/gamehub/?game=reflex">PLAY REFLEX RUSH</a></main>}

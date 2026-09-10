@@ -1,0 +1,3 @@
+import type { Metadata } from 'next';
+export const metadata: Metadata={title:'Stack Tower — Free Tower Stacking Game',description:'Play Stack Tower, a free browser arcade game. Drop blocks accurately, build higher and chase your best tower.',alternates:{canonical:'/games/stack-tower/'}};
+export default function StackTowerSEO(){return <main className="legal-page"><a href="/gamehub/games/">← All Games</a><h1>Stack Tower</h1><p>Drop each block as accurately as possible and build a tower that keeps going higher. One mistimed move can end the run.</p><p>Free, instant browser gameplay with no download required.</p><a className="primary" href="/gamehub/?game=stack-tower">PLAY STACK TOWER</a></main>}

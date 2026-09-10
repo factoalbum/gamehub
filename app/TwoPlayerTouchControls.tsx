@@ -27,14 +27,17 @@ type ButtonProps = {
 function ControlButton({ player, action, label, ariaLabel, onPress, onRelease }: ButtonProps) {
   const buttonRef = useRef<HTMLButtonElement | null>(null);
   const pointers = useRef(new Set<number>());
+  const onReleaseRef = useRef(onRelease);
   const [held, setHeld] = useState(false);
+
+  onReleaseRef.current = onRelease;
 
   const releaseAll = () => {
     if (pointers.current.size === 0) return;
     pointers.current.clear();
     buttonRef.current?.classList.remove('touch-held');
     setHeld(false);
-    onRelease(player, action);
+    onReleaseRef.current(player, action);
   };
 
   const releasePointer = (button: HTMLButtonElement, pointerId: number) => {
@@ -43,7 +46,7 @@ function ControlButton({ player, action, label, ariaLabel, onPress, onRelease }:
     if (pointers.current.size === 0) {
       button.classList.remove('touch-held');
       setHeld(false);
-      onRelease(player, action);
+      onReleaseRef.current(player, action);
     }
   };
 
@@ -60,7 +63,7 @@ function ControlButton({ player, action, label, ariaLabel, onPress, onRelease }:
       document.removeEventListener('visibilitychange', releaseOnVisibilityChange);
       releaseAll();
     };
-  });
+  }, []);
 
   return (
     <button

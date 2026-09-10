@@ -1,0 +1,5 @@
+export const metadata = { title: 'Terms of Use | GameHub', description: 'GameHub terms of use for playing and using the GameHub website.' };
+
+export default function TermsPage() {
+  return <main className="legal-page"><a href="/gamehub/">← GameHub</a><h1>Terms of Use</h1><p>Last updated: September 10, 2026</p><h2>Using GameHub</h2><p>GameHub provides free browser games for personal, lawful entertainment. You may play the games in a compatible browser and use the site normally.</p><h2>Availability</h2><p>Games and features may change, be improved, or be temporarily unavailable. We do not guarantee uninterrupted availability or that every game will work on every device.</p><h2>Content</h2><p>GameHub's original interface, code, artwork, and game implementations are provided for the site experience. Do not misuse, disrupt, or attempt to compromise the service.</p><h2>Third-party services</h2><p>GameHub may rely on third-party hosting or services. Their own terms and policies may apply.</p><h2>Changes</h2><p>These terms may be updated as the site evolves. Continued use after an update means you accept the revised terms.</p></main>;
+}

@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import type { GameCatalogItem } from '../lib/game-catalog';
 
 type Props = { games: GameCatalogItem[]; groups: string[] };
@@ -8,6 +8,20 @@ type Props = { games: GameCatalogItem[]; groups: string[] };
 export default function GameDirectory({ games, groups }: Props) {
   const [query, setQuery] = useState('');
   const [category, setCategory] = useState('All');
+  const searchRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== '/' || event.metaKey || event.ctrlKey || event.altKey) return;
+      const target = event.target as HTMLElement | null;
+      if (target?.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName)) return;
+      event.preventDefault();
+      searchRef.current?.focus();
+    };
+
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, []);
 
   const visible = useMemo(() => {
     const needle = query.trim().toLowerCase();
@@ -23,18 +37,29 @@ export default function GameDirectory({ games, groups }: Props) {
     games: visible.filter(game => game.category === group),
   })).filter(section => section.games.length);
 
+  const clearFilters = () => {
+    setQuery('');
+    setCategory('All');
+    searchRef.current?.focus();
+  };
+
   return (
     <>
       <div className="directory-tools" aria-label="Filter games">
         <label className="directory-search">
           <span aria-hidden="true">⌕</span>
           <input
+            ref={searchRef}
             type="search"
             value={query}
             onChange={event => setQuery(event.target.value)}
+            onKeyDown={event => {
+              if (event.key === 'Escape' && (query || category !== 'All')) clearFilters();
+            }}
             placeholder="Search games..."
             aria-label="Search games"
           />
+          {!query && <kbd aria-hidden="true">/</kbd>}
         </label>
         <div className="directory-filters" role="group" aria-label="Game categories">
           {['All', ...groups].map(item => (
@@ -49,6 +74,10 @@ export default function GameDirectory({ games, groups }: Props) {
             </button>
           ))}
         </div>
+      </div>
+
+      <div className="directory-result-status" role="status" aria-live="polite">
+        {visible.length} {visible.length === 1 ? 'game' : 'games'}{query.trim() ? ` matching “${query.trim()}”` : ''}
       </div>
 
       {visible.length ? visibleByCategory.map(section => (
@@ -68,7 +97,7 @@ export default function GameDirectory({ games, groups }: Props) {
         <div className="directory-empty" role="status">
           <strong>No games found.</strong>
           <span>Try a different search or category.</span>
-          <button type="button" onClick={() => { setQuery(''); setCategory('All'); }}>Clear filters</button>
+          <button type="button" onClick={clearFilters}>Clear filters</button>
         </div>
       )}
     </>

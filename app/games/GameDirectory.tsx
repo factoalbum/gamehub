@@ -43,6 +43,13 @@ export default function GameDirectory({ games, groups }: Props) {
     searchRef.current?.focus();
   };
 
+  const hasFilters = Boolean(query.trim()) || category !== 'All';
+  const resultDescription = [
+    `${visible.length} ${visible.length === 1 ? 'game' : 'games'}`,
+    query.trim() ? `matching “${query.trim()}”` : '',
+    category !== 'All' ? `in ${category}` : '',
+  ].filter(Boolean).join(' ');
+
   return (
     <>
       <div className="directory-tools" aria-label="Filter games">
@@ -54,12 +61,24 @@ export default function GameDirectory({ games, groups }: Props) {
             value={query}
             onChange={event => setQuery(event.target.value)}
             onKeyDown={event => {
-              if (event.key === 'Escape' && (query || category !== 'All')) clearFilters();
+              if (event.key === 'Escape' && hasFilters) clearFilters();
             }}
             placeholder="Search games..."
             aria-label="Search games"
           />
-          {!query && <kbd aria-hidden="true">/</kbd>}
+          {hasFilters ? (
+            <button
+              type="button"
+              className="directory-search-clear"
+              onClick={clearFilters}
+              aria-label="Clear game search and category filters"
+              title="Clear filters"
+            >
+              ×
+            </button>
+          ) : (
+            <kbd aria-hidden="true">/</kbd>
+          )}
         </label>
         <div className="directory-filters" role="group" aria-label="Game categories">
           {['All', ...groups].map(item => (
@@ -77,7 +96,7 @@ export default function GameDirectory({ games, groups }: Props) {
       </div>
 
       <div className="directory-result-status" role="status" aria-live="polite">
-        {visible.length} {visible.length === 1 ? 'game' : 'games'}{query.trim() ? ` matching “${query.trim()}”` : ''}
+        {resultDescription}
       </div>
 
       {visible.length ? visibleByCategory.map(section => (

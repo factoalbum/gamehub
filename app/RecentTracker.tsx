@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
-import { usePathname } from 'next/navigation';
+import { usePathname, useSearchParams } from 'next/navigation';
 import { recentGames } from './lib/game-catalog';
 
 const routeIds = new Map(
@@ -24,10 +24,11 @@ const queryIds = new Map(
 
 export default function RecentTracker() {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const query = searchParams.toString();
 
   useEffect(() => {
     const normalizedPath = pathname.replace(/\/$/, '');
-    const query = window.location.search.replace(/^\?/, '');
     const id = query
       ? queryIds.get(`${normalizedPath}?${query}`)
       : routeIds.get(normalizedPath);
@@ -42,7 +43,7 @@ export default function RecentTracker() {
       localStorage.setItem('gamehub:recent', JSON.stringify(recent));
       window.dispatchEvent(new CustomEvent('gamehub:recent', { detail: recent }));
     } catch {}
-  }, [pathname]);
+  }, [pathname, query]);
 
   return null;
 }

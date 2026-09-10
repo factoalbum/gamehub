@@ -57,11 +57,16 @@ export default function RecentTracker() {
 
   useEffect(() => {
     const syncFromAnotherTab = (event: StorageEvent) => {
-      if (event.key !== 'gamehub:recent' || !event.newValue) return;
+      if (event.key !== 'gamehub:recent') return;
+
       try {
-        const recent = JSON.parse(event.newValue) as unknown;
+        const recent = event.newValue ? JSON.parse(event.newValue) as unknown : [];
         if (!Array.isArray(recent)) return;
-        window.dispatchEvent(new CustomEvent('gamehub:recent', { detail: recent }));
+        window.dispatchEvent(
+          new CustomEvent('gamehub:recent', {
+            detail: recent.filter((item): item is string => typeof item === 'string').slice(0, 5),
+          }),
+        );
       } catch {}
     };
 

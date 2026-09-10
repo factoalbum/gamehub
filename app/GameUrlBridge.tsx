@@ -1,20 +1,23 @@
 'use client';
 
 import { useEffect } from 'react';
+import { recentGames } from './lib/game-catalog';
 
-const titles: Record<string, string> = {
-  reflex: 'Reflex Rush',
-  'memory-grid': 'Memory Grid',
-  snake: 'Snake',
-  'number-merge': 'Number Merge',
-  'color-match': 'Color Match',
-  'stack-tower': 'Stack Tower',
-};
+const queryGameTitles = new Map(
+  recentGames
+    .filter((game) => game.href.includes('?'))
+    .map((game) => {
+      const url = new URL(game.href, 'https://gamehub.local');
+      return [url.searchParams.get('game'), game.label] as const;
+    })
+    .filter((entry): entry is readonly [string, string] => Boolean(entry[0])),
+);
 
 function remember(id: string) {
   try {
-    const current = JSON.parse(localStorage.getItem('gamehub:recent') || '[]') as string[];
-    const recent = [id, ...current.filter(item => item !== id)].slice(0, 5);
+    const current = JSON.parse(localStorage.getItem('gamehub:recent') || '[]') as unknown;
+    const ids = Array.isArray(current) ? current.filter((item): item is string => typeof item === 'string') : [];
+    const recent = [id, ...ids.filter(item => item !== id)].slice(0, 5);
     localStorage.setItem('gamehub:recent', JSON.stringify(recent));
     window.dispatchEvent(new CustomEvent('gamehub:recent', { detail: recent }));
   } catch {}
@@ -45,9 +48,9 @@ export default function GameUrlBridge() {
       if (path !== '/gamehub/' && path !== '/') return;
       const id = new URLSearchParams(window.location.search).get('game');
 
-      if (id && titles[id]) {
-        const title = titles[id];
-        const button = Array.from(document.querySelectorAll<HTMLButtonElement>('.game-card')).find(el => el.textContent?.includes(title));
+      const label = id ? queryGameTitles.get(id) : undefined;
+      if (id && label) {
+        const button = Array.from(document.querySelectorAll<HTMLButtonElement>('.game-card')).find(el => el.textContent?.includes(label));
         if (button) {
           remember(id);
           button.click();
@@ -69,7 +72,7 @@ export default function GameUrlBridge() {
       const target = event.target as HTMLElement | null;
       const card = target?.closest<HTMLButtonElement>('.game-card');
       if (card) {
-        const entry = Object.entries(titles).find(([, title]) => card.textContent?.includes(title));
+        const entry = [...queryGameTitles.entries()].find(([, label]) => card.textContent?.includes(label));
         if (entry) {
           const [id] = entry;
           remember(id);

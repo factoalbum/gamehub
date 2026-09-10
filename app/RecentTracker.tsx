@@ -53,7 +53,7 @@ export default function RecentTracker() {
         ? undefined
         : routeIds.get(normalizedPath);
     if (id) publishRecent(id);
-  }, [pathname, query, searchParams]);
+  }, [pathname, query]);
 
   useEffect(() => {
     const syncFromAnotherTab = (event: StorageEvent) => {

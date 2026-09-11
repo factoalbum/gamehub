@@ -17,7 +17,6 @@ export type GameCatalogItem = {
 export const multiplayerGames: GameCatalogItem[] = [
   { id: 'tic-tac-toe', label: 'Tic Tac Toe', emoji: '⭕', meta: 'Classic · 2 players', href: '/gamehub/tic-tac-toe/', category: '2 Player', tag: 'CLASSIC' },
   { id: 'connect-four', label: 'Connect Four', emoji: '🔴', meta: 'Classic · 2 players', href: '/gamehub/connect-four/', category: '2 Player', tag: 'CLASSIC' },
-  { id: 'pong-duel', label: 'Pong Duel', emoji: '🏓', meta: 'Arcade · 2 players', href: '/gamehub/pong-duel/', category: '2 Player', tag: 'CLASSIC' },
   { id: 'hoop-duel', label: 'Hoop Duel', emoji: '🏀', meta: 'Basketball · 1P / 2P', href: '/gamehub/hoop-duel/', category: '2 Player', tag: 'ONE BUTTON' },
   { id: 'football-random', label: 'Football Random', emoji: '⚽', meta: 'Football · 2 players', href: '/gamehub/football-random/', category: '2 Player', tag: 'ONE BUTTON' },
   { id: 'mini-football', label: 'Mini Football', emoji: '⚽', meta: 'Football · 2 players', href: '/gamehub/mini-football/', category: '2 Player', tag: 'LOCAL' },

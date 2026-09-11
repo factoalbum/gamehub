@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useRef, useState } from 'react';
+import { useMemo, useRef, useState, type KeyboardEvent } from 'react';
 import './tic-tac-toe.css';
 
 type Mark = 'X' | 'O' | null;
@@ -30,15 +30,14 @@ export default function TicTacToePage() {
     const next = [...board];
     next[index] = turn;
     setBoard(next);
-    const nextLine = winningLine(next);
-    if (nextLine) {
+    if (winningLine(next)) {
       setScores((current) => ({ ...current, [turn]: current[turn] + 1 }));
     } else if (!next.every(Boolean)) {
       setTurn(turn === 'X' ? 'O' : 'X');
     }
   }
 
-  function handleKeyDown(event: React.KeyboardEvent<HTMLButtonElement>, index: number) {
+  function handleKeyDown(event: KeyboardEvent<HTMLButtonElement>, index: number) {
     const row = Math.floor(index / 3);
     const column = index % 3;
     let nextIndex = index;
@@ -92,7 +91,7 @@ export default function TicTacToePage() {
           ))}
         </div>
         <div className="ttt-actions">
-          <button className="ttt-reset" onClick={finished ? reset : reset}>NEW ROUND</button>
+          <button className="ttt-reset" onClick={reset}>{finished ? 'REMATCH' : 'NEW ROUND'}</button>
           {finished && <button className="ttt-match-reset" onClick={resetMatch}>RESET MATCH</button>}
         </div>
         <p className="ttt-hint">Tap a square · Arrow keys move · X starts · First to three in a row wins</p>

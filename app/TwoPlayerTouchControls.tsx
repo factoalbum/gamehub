@@ -27,23 +27,32 @@ type ButtonProps = {
 function ControlButton({ player, action, label, ariaLabel, onPress, onRelease }: ButtonProps) {
   const buttonRef = useRef<HTMLButtonElement | null>(null);
   const pointers = useRef(new Set<number>());
+  const keyboardHeld = useRef(false);
   const onReleaseRef = useRef(onRelease);
   const [held, setHeld] = useState(false);
 
   onReleaseRef.current = onRelease;
 
   const releaseAll = () => {
-    if (pointers.current.size === 0) return;
+    if (pointers.current.size === 0 && !keyboardHeld.current) return;
     pointers.current.clear();
+    keyboardHeld.current = false;
     buttonRef.current?.classList.remove('touch-held');
     setHeld(false);
     onReleaseRef.current(player, action);
   };
 
+  const press = () => {
+    if (pointers.current.size > 0 || keyboardHeld.current) return;
+    buttonRef.current?.classList.add('touch-held');
+    setHeld(true);
+    onPress(player, action);
+  };
+
   const releasePointer = (button: HTMLButtonElement, pointerId: number) => {
     if (!pointers.current.has(pointerId)) return;
     pointers.current.delete(pointerId);
-    if (pointers.current.size === 0) {
+    if (pointers.current.size === 0 && !keyboardHeld.current) {
       button.classList.remove('touch-held');
       setHeld(false);
       onReleaseRef.current(player, action);
@@ -75,11 +84,7 @@ function ControlButton({ player, action, label, ariaLabel, onPress, onRelease }:
       onContextMenu={(e) => e.preventDefault()}
       onPointerDown={(e) => {
         e.preventDefault();
-        if (pointers.current.size === 0) {
-          e.currentTarget.classList.add('touch-held');
-          setHeld(true);
-          onPress(player, action);
-        }
+        press();
         pointers.current.add(e.pointerId);
         e.currentTarget.setPointerCapture?.(e.pointerId);
       }}
@@ -93,6 +98,24 @@ function ControlButton({ player, action, label, ariaLabel, onPress, onRelease }:
       }}
       onLostPointerCapture={(e) => {
         releasePointer(e.currentTarget, e.pointerId);
+      }}
+      onKeyDown={(e) => {
+        if (e.key !== 'Enter' && e.key !== ' ') return;
+        e.preventDefault();
+        if (keyboardHeld.current) return;
+        keyboardHeld.current = true;
+        press();
+      }}
+      onKeyUp={(e) => {
+        if (e.key !== 'Enter' && e.key !== ' ') return;
+        e.preventDefault();
+        if (!keyboardHeld.current) return;
+        keyboardHeld.current = false;
+        if (pointers.current.size === 0) {
+          e.currentTarget.classList.remove('touch-held');
+          setHeld(false);
+          onReleaseRef.current(player, action);
+        }
       }}
     >
       {label}

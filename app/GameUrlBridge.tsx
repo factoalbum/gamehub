@@ -43,6 +43,7 @@ export default function GameUrlBridge() {
   useEffect(() => {
     let cancelled = false;
     let attempts = 0;
+    let nextClickSource: 'card' | 'url' | null = null;
 
     const syncUrl = () => {
       if (cancelled) return;
@@ -54,7 +55,9 @@ export default function GameUrlBridge() {
       if (id && label) {
         const button = Array.from(document.querySelectorAll<HTMLButtonElement>('.game-card')).find(el => el.textContent?.includes(label));
         if (button) {
-          remember(id, 'url');
+          // The synthetic click below is observed by handleClick, which owns the
+          // single analytics/recent-history write for both URL and card launches.
+          nextClickSource = 'url';
           button.click();
           return;
         }
@@ -77,8 +80,10 @@ export default function GameUrlBridge() {
         const entry = [...queryGameTitles.entries()].find(([, label]) => card.textContent?.includes(label));
         if (entry) {
           const [id] = entry;
-          remember(id, 'card');
-          setGameUrl(id);
+          const source = nextClickSource ?? 'card';
+          nextClickSource = null;
+          remember(id, source);
+          if (source === 'card') setGameUrl(id);
         }
         return;
       }

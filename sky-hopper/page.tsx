@@ -12,7 +12,7 @@ function readBest() {
 }
 
 export default function SkyHopper() {
-  const canvas = useRef<HTMLCanvasElement>(null), raf = useRef<number>(), bird = useRef({ x: 170, y: 250, vy: 0 });
+  const canvas = useRef<HTMLCanvasElement>(null), raf = useRef<number | undefined>(undefined), bird = useRef({ x: 170, y: 250, vy: 0 });
   const obstacles = useRef<Obstacle[]>([]), scoreRef = useRef(0), state = useRef<State>('ready'), startedRef = useRef(false);
   const [ui, setUi] = useState<State>('ready'), [score, setScore] = useState(0), [best, setBest] = useState(0);
 
@@ -92,7 +92,7 @@ export default function SkyHopper() {
       raf.current = requestAnimationFrame(loop);
     };
     raf.current = requestAnimationFrame(loop);
-    return () => { removeEventListener('resize', resize); if (raf.current) cancelAnimationFrame(raf.current); };
+    return () => { removeEventListener('resize', resize); if (raf.current !== undefined) cancelAnimationFrame(raf.current); };
   }, [finish]);
 
   return <main className="sky-page"><div className="sky-shell"><header><a href="/gamehub/">← GAMEHUB</a><span>ARCADE · ONE BUTTON</span><button onClick={() => reset(true)}>RESTART</button></header><div className="sky-score"><strong>{score}</strong><span>BEST {best}</span></div><div className="sky-stage"><canvas ref={canvas} width={W} height={H} aria-label="Sky Hopper game" onPointerDown={flap}/>{ui !== 'play' && <div className="sky-overlay"><span>☁️</span><h1>{ui === 'ready' ? 'SKY HOPPER' : 'GAME OVER'}</h1><p>{ui === 'ready' ? 'Tap, click or press Space to fly through the gaps.' : 'Score ' + score + '. Can you beat your best?'}</p><button onClick={() => reset(true)}>{ui === 'ready' ? 'START' : 'PLAY AGAIN'}</button></div>}</div><p className="sky-tip">TAP / CLICK / SPACE TO HOP · ONE MORE TRY</p></div></main>;

@@ -1,0 +1,19 @@
+{
+  "name": "GameHub — Free Browser Games",
+  "short_name": "GameHub",
+  "description": "Fast free browser games for phone, tablet and desktop.",
+  "start_url": "/gamehub/",
+  "scope": "/gamehub/",
+  "display": "standalone",
+  "background_color": "#101114",
+  "theme_color": "#b7f34a",
+  "lang": "en",
+  "icons": [
+    {
+      "src": "/gamehub/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title desc">
+  <title id="title">GameHub</title>
+  <desc id="desc">GameHub game controller mark</desc>
+  <rect width="64" height="64" rx="16" fill="#101114"/>
+  <path d="M16 38c-3.5 7.2-1.5 13 2.7 13 3.1 0 5.1-3.4 7.1-6.7h12.4c2 3.3 4 6.7 7.1 6.7 4.2 0 6.2-5.8 2.7-13l-3.4-8.2c-1.3-3.2-4.2-5.3-7.6-5.3H27c-3.4 0-6.3 2.1-7.6 5.3L16 38Z" fill="#b7f34a"/>
+  <path d="M25 34h-6m3-3v6M41 32h.01M46 36h.01" stroke="#101114" stroke-width="3" stroke-linecap="round"/>
+</svg>

@@ -2,8 +2,8 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import './pong-duel.css';
-import { trackGame } from '../lib/analytics';
-import TwoPlayerTouchControls, { TouchAction } from '../TwoPlayerTouchControls';
+import { trackGame } from '../../lib/analytics';
+import TwoPlayerTouchControls, { TouchAction } from '../../TwoPlayerTouchControls';
 
 type Paddle = { y: number; score: number };
 type Ball = { x: number; y: number; vx: number; vy: number };

@@ -34,7 +34,7 @@ jobs:
 
       - name: Verify static export
         run: |
-          test -f out/index.html
+          test -f out/pong-duel/index.html
           test -f out/manifest.webmanifest
           test -f out/robots.txt
           test -f out/sitemap.xml

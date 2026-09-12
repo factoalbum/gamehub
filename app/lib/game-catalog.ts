@@ -53,21 +53,26 @@ export const recentGames: GameCatalogItem[] = [
   ...multiplayerGames,
 ];
 
-/**
- * Stable lookup helpers keep catalog consumers from duplicating filtering and
- * make adding new games a data-only change. The returned arrays are fresh so
- * callers cannot mutate the canonical registration lists.
- */
+/** Canonical catalog used by discovery consumers. */
 export const allGames: GameCatalogItem[] = recentGames;
 
+function normalize(value: string): string {
+  return value.trim().toLowerCase();
+}
+
+/** Find a game from a URL/query-safe id without requiring callers to normalize input. */
 export function getGameById(id: string): GameCatalogItem | undefined {
-  return allGames.find((game) => game.id === id);
+  const normalizedId = normalize(id);
+  return allGames.find((game) => game.id === normalizedId);
 }
 
+/** Filter categories case-insensitively so URL-driven discovery stays forgiving. */
 export function getGamesByCategory(category: string): GameCatalogItem[] {
-  return allGames.filter((game) => game.category === category);
+  const normalizedCategory = normalize(category);
+  return allGames.filter((game) => normalize(game.category) === normalizedCategory);
 }
 
+/** Return unique categories in their catalog/discovery order. */
 export function getCategories(): string[] {
   return [...new Set(allGames.map((game) => game.category))];
 }

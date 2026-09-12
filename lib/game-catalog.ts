@@ -1,3 +1,5 @@
+import { normalizeCatalogValue } from './catalog-utils';
+
 export type GameCatalogItem = {
   id: string;
   label: string;
@@ -57,29 +59,27 @@ export const recentGames: GameCatalogItem[] = [
   ...multiplayerGames,
 ];
 
-const normalize = (value: string) => value.trim().toLowerCase();
-
 export function getGameById(id: string) {
-  const normalized = normalize(id);
-  return recentGames.find((game) => normalize(game.id) === normalized);
+  const normalized = normalizeCatalogValue(id);
+  return recentGames.find((game) => normalizeCatalogValue(game.id) === normalized);
 }
 
 export function getGamesByCategory(category: string) {
-  const normalized = normalize(category);
+  const normalized = normalizeCatalogValue(category);
   if (normalized === 'all') return [...recentGames];
-  return recentGames.filter((game) => normalize(game.category) === normalized);
+  return recentGames.filter((game) => normalizeCatalogValue(game.category) === normalized);
 }
 
 export function getGamesByTag(tag: string) {
-  const normalized = normalize(tag);
-  return recentGames.filter((game) => normalize(game.tag ?? '') === normalized);
+  const normalized = normalizeCatalogValue(tag);
+  return recentGames.filter((game) => normalizeCatalogValue(game.tag ?? '') === normalized);
 }
 
 /** Return sports for a focused sports shelf while preserving catalog order. */
 export function getGamesBySport(sport: string) {
-  const normalized = normalize(sport);
+  const normalized = normalizeCatalogValue(sport);
   if (normalized === 'all') return getSportsGames();
-  return multiplayerGames.filter((game) => normalize(game.sport ?? '') === normalized);
+  return multiplayerGames.filter((game) => normalizeCatalogValue(game.sport ?? '') === normalized);
 }
 
 export function getSportsGames() {
@@ -95,18 +95,23 @@ export function getCategories() {
   return [...new Set(recentGames.map((game) => game.category))];
 }
 
+/** Return a stable, URL-safe anchor for sport navigation. */
+export function getSportAnchorId(sport: string) {
+  return `sport-${sport.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
+}
+
 export function getRelatedGames(currentId: string, limit = 4) {
   const current = getGameById(currentId);
   if (!current || limit <= 0) return [];
-  const currentIdNormalized = normalize(current.id);
-  const currentTag = normalize(current.tag ?? '');
-  const currentCategory = normalize(current.category);
-  const pool = recentGames.filter((game) => normalize(game.id) !== currentIdNormalized);
+  const currentIdNormalized = normalizeCatalogValue(current.id);
+  const currentTag = normalizeCatalogValue(current.tag ?? '');
+  const currentCategory = normalizeCatalogValue(current.category);
+  const pool = recentGames.filter((game) => normalizeCatalogValue(game.id) !== currentIdNormalized);
   const score = (game: GameCatalogItem) => {
     let value = 0;
-    if (current.sport && game.sport && normalize(game.sport) === normalize(current.sport)) value += 4;
-    if (currentTag && normalize(game.tag ?? '') === currentTag) value += 3;
-    if (normalize(game.category) === currentCategory) value += 2;
+    if (current.sport && game.sport && normalizeCatalogValue(game.sport) === normalizeCatalogValue(current.sport)) value += 4;
+    if (currentTag && normalizeCatalogValue(game.tag ?? '') === currentTag) value += 3;
+    if (normalizeCatalogValue(game.category) === currentCategory) value += 2;
     return value;
   };
   return [...pool].sort((a, b) => score(b) - score(a)).slice(0, limit);

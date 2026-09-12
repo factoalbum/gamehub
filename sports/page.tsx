@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import './sports.css';
+import { getSportsGames } from '../lib/game-catalog';
 
 export const metadata: Metadata = {
   title: '2 Player Sports Games — Play Together | GameHub',
@@ -7,16 +8,9 @@ export const metadata: Metadata = {
   alternates: { canonical: '/sports/' },
 };
 
-const sports = [
-  { href: '/gamehub/hoop-duel/', emoji: '🏀', title: 'Hoop Duel', copy: 'Fast 1v1 basketball. Outscore your friend before the clock hits zero.', tag: 'BASKETBALL' },
-  { href: '/gamehub/mini-football/', emoji: '⚽', title: 'Mini Football', copy: 'Simple 1v1 football with quick movement, shots and instant rematches.', tag: 'FOOTBALL' },
-  { href: '/gamehub/volley-duel/', emoji: '🏐', title: 'Volley Duel', copy: 'Keep the ball alive, find the opening and be first to take the set.', tag: 'VOLLEYBALL' },
-  { href: '/gamehub/tennis-duel/', emoji: '🎾', title: 'Tennis Duel', copy: 'A pick-up-and-play tennis rally built for two people on one device.', tag: 'TENNIS' },
-  { href: '/gamehub/air-hockey/', emoji: '🏒', title: 'Air Hockey Duel', copy: 'Slide, defend and fire the puck. First to 7 wins the table.', tag: 'HOCKEY' },
-  { href: '/gamehub/racing-duel/', emoji: '🏁', title: 'Racing Duel', copy: 'Race three laps, manage your boost and beat your friend to the finish.', tag: 'RACING' },
-];
-
 export default function SportsPage() {
+  const sports = getSportsGames();
+
   return (
     <main className="sports-page">
       <div className="sports-inner">
@@ -34,7 +28,7 @@ export default function SportsPage() {
             {sports.map((sport) => (
               <a className="sport-card" href={sport.href} key={sport.href}>
                 <div className="sport-icon" aria-hidden="true">{sport.emoji}</div>
-                <div className="sport-copy"><span className="sport-tag">{sport.tag}</span><h3>{sport.title}</h3><p>{sport.copy}</p></div>
+                <div className="sport-copy"><span className="sport-tag">{sport.sport}</span><h3>{sport.label}</h3><p>{sport.description ?? sport.meta}</p></div>
                 <span className="sport-play" aria-hidden="true">PLAY →</span>
               </a>
             ))}

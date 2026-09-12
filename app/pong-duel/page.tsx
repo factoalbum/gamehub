@@ -67,16 +67,19 @@ export default function PongDuel() {
     };
     const u = (e: KeyboardEvent) => keys.current.delete(e.key.toLowerCase());
     const clear = () => keys.current.clear();
+    const visibility = () => {
+      if (document.hidden) clear();
+    };
     addEventListener('keydown', d);
     addEventListener('keyup', u);
     addEventListener('blur', clear);
-    document.addEventListener('visibilitychange', () => {
-      if (document.hidden) clear();
-    });
+    document.addEventListener('visibilitychange', visibility);
     return () => {
       removeEventListener('keydown', d);
       removeEventListener('keyup', u);
       removeEventListener('blur', clear);
+      document.removeEventListener('visibilitychange', visibility);
+      clear();
     };
   }, [reset]);
 

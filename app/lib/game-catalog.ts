@@ -5,15 +5,9 @@ export type GameCatalogItem = {
   meta: string;
   href: string;
   category: string;
-  /** Optional multiplayer card label; kept in the catalog to avoid page-level duplication. */
   tag?: string;
 };
 
-/**
- * Single source of truth for discoverable games. Keep this data-only so it is
- * safe to import from both server and client components and remains static-
- * hosting friendly.
- */
 export const multiplayerGames: GameCatalogItem[] = [
   { id: 'tic-tac-toe', label: 'Tic Tac Toe', emoji: '⭕', meta: 'Classic · 2 players', href: '/gamehub/tic-tac-toe/', category: '2 Player', tag: 'CLASSIC' },
   { id: 'connect-four', label: 'Connect Four', emoji: '🔴', meta: 'Classic · 2 players', href: '/gamehub/connect-four/', category: '2 Player', tag: 'CLASSIC' },
@@ -41,7 +35,6 @@ export const freshDropGames: GameCatalogItem[] = [
   { id: 'alien-blaster', label: 'Alien Blaster', emoji: '👾', meta: 'Arcade · Clear enemy waves', href: '/gamehub/alien-blaster/', category: 'Arcade' },
 ];
 
-/** Full set used by the local recent-games tracker. */
 export const recentGames: GameCatalogItem[] = [
   { id: 'reflex', label: 'Reflex Rush', emoji: '⚡', meta: 'Arcade · Reflex challenge', href: '/gamehub/?game=reflex', category: 'Arcade' },
   { id: 'memory-grid', label: 'Memory Grid', emoji: '🧠', meta: 'Brain · Match the pattern', href: '/gamehub/?game=memory-grid', category: 'Brain' },
@@ -53,26 +46,37 @@ export const recentGames: GameCatalogItem[] = [
   ...multiplayerGames,
 ];
 
-/** Canonical catalog used by discovery consumers. */
 export const allGames: GameCatalogItem[] = recentGames;
 
 function normalize(value: string): string {
   return value.trim().toLowerCase();
 }
 
-/** Find a game from a URL/query-safe id without requiring callers to normalize input. */
 export function getGameById(id: string): GameCatalogItem | undefined {
   const normalizedId = normalize(id);
   return allGames.find((game) => game.id === normalizedId);
 }
 
-/** Filter categories case-insensitively so URL-driven discovery stays forgiving. */
 export function getGamesByCategory(category: string): GameCatalogItem[] {
   const normalizedCategory = normalize(category);
   return allGames.filter((game) => normalize(game.category) === normalizedCategory);
 }
 
-/** Return unique categories in their catalog/discovery order. */
+export function getGamesByTag(tag: string): GameCatalogItem[] {
+  const normalizedTag = normalize(tag);
+  return allGames.filter((game) => game.tag && normalize(game.tag) === normalizedTag);
+}
+
+export function getRelatedGames(id: string, limit = 4): GameCatalogItem[] {
+  if (limit <= 0) return [];
+  const current = getGameById(id);
+  if (!current) return [];
+  const category = normalize(current.category);
+  const related = allGames.filter((game) => game.id !== current.id && normalize(game.category) === category);
+  const fallback = allGames.filter((game) => game.id !== current.id && normalize(game.category) !== category);
+  return [...related, ...fallback].slice(0, limit);
+}
+
 export function getCategories(): string[] {
   return [...new Set(allGames.map((game) => game.category))];
 }

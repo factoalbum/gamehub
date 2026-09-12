@@ -16,7 +16,7 @@ export type GameCatalogItem = {
 /**
  * Single source of truth for discoverable games. Keep this data-only so it is
  * safe to import from both server and client components and remains static-
- * hosting friendly.
+hosting friendly.
  */
 export const multiplayerGames: GameCatalogItem[] = [
   { id: 'tic-tac-toe', label: 'Tic Tac Toe', emoji: '⭕', meta: 'Classic · 2 players', href: '/gamehub/tic-tac-toe/', category: '2 Player', tag: 'CLASSIC' },
@@ -84,6 +84,11 @@ export function getGamesBySport(sport: string) {
 
 export function getSportsGames() {
   return multiplayerGames.filter((game) => Boolean(game.sport));
+}
+
+/** Return the unique sports represented in the catalog, preserving first-seen order. */
+export function getSports() {
+  return [...new Set(getSportsGames().map((game) => game.sport as string))];
 }
 
 export function getCategories() {

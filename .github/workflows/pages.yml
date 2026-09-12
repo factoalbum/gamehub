@@ -38,6 +38,13 @@ jobs:
       - name: Verify static export
         run: |
           test -f out/pong-duel/index.html
+          test -f out/hoop-duel/index.html
+          test -f out/football-random/index.html
+          test -f out/mini-football/index.html
+          test -f out/volley-duel/index.html
+          test -f out/tennis-duel/index.html
+          test -f out/air-hockey/index.html
+          test -f out/racing-duel/index.html
           test -f out/manifest.webmanifest
           test -f out/robots.txt
           test -f out/sitemap.xml

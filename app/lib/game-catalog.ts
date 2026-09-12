@@ -71,10 +71,24 @@ export function getRelatedGames(id: string, limit = 4): GameCatalogItem[] {
   if (limit <= 0) return [];
   const current = getGameById(id);
   if (!current) return [];
+
   const category = normalize(current.category);
-  const related = allGames.filter((game) => game.id !== current.id && normalize(game.category) === category);
-  const fallback = allGames.filter((game) => game.id !== current.id && normalize(game.category) !== category);
-  return [...related, ...fallback].slice(0, limit);
+  const tag = current.tag ? normalize(current.tag) : '';
+  const candidates = allGames.filter((game) => game.id !== current.id);
+
+  // Keep the rematch loop contextually tight: same tag (e.g. LOCAL or CLASSIC)
+  // comes first, then the same category, then the broader catalog.
+  const sameTag = tag
+    ? candidates.filter((game) => game.tag && normalize(game.tag) === tag)
+    : [];
+  const sameCategory = candidates.filter(
+    (game) => normalize(game.category) === category && (!tag || !sameTag.some((match) => match.id === game.id)),
+  );
+  const fallback = candidates.filter(
+    (game) => normalize(game.category) !== category && !sameTag.some((match) => match.id === game.id),
+  );
+
+  return [...sameTag, ...sameCategory, ...fallback].slice(0, limit);
 }
 
 export function getCategories(): string[] {

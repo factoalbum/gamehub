@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import './sports.css';
-import { getSportsGames } from '../lib/game-catalog';
+import { getSports, getSportsGames } from '../lib/game-catalog';
 
 export const metadata: Metadata = {
   title: '2 Player Sports Games — Play Together | GameHub',
@@ -10,6 +10,7 @@ export const metadata: Metadata = {
 
 export default function SportsPage() {
   const sports = getSportsGames();
+  const sportNames = getSports();
 
   return (
     <main className="sports-page">
@@ -19,14 +20,23 @@ export default function SportsPage() {
           <p className="eyebrow">GAMEHUB · 2 PLAYER</p>
           <h1>Play together.<br /><span>Rematch instantly.</span></h1>
           <p>Classic sports energy without the simulation. Grab one device, pick a game and settle the score.</p>
-          <div className="sports-pills"><span>⌨️ Keyboard</span><span>📱 Touch</span><span>⚡ No download</span></div>
+          <div className="sports-pills" aria-label="Ways to play">
+            <span>⌨️ Keyboard</span><span>📱 Touch</span><span>⚡ No download</span>
+          </div>
         </header>
+
+        <nav className="sports-nav" aria-label="Browse sports">
+          <span className="sports-nav-label">BROWSE BY SPORT</span>
+          {sportNames.map((sport) => (
+            <a key={sport} href={`#sport-${sport.toLowerCase()}`}>{sport}</a>
+          ))}
+        </nav>
 
         <section aria-labelledby="sports-list-title">
           <div className="section-heading"><div><p className="eyebrow">LOCAL MULTIPLAYER</p><h2 id="sports-list-title">Choose your game</h2></div><span>{sports.length} games</span></div>
           <div className="sports-grid">
             {sports.map((sport) => (
-              <a className="sport-card" href={sport.href} key={sport.href}>
+              <a className="sport-card" href={sport.href} key={sport.href} id={`sport-${sport.sport?.toLowerCase()}`}>
                 <div className="sport-icon" aria-hidden="true">{sport.emoji}</div>
                 <div className="sport-copy"><span className="sport-tag">{sport.sport}</span><h3>{sport.label}</h3><p>{sport.description ?? sport.meta}</p></div>
                 <span className="sport-play" aria-hidden="true">PLAY →</span>

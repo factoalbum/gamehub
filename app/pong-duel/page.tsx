@@ -114,14 +114,21 @@ export default function PongDuel() {
           b.x = W - 60 - PADDLE_W; b.vx = -Math.min(13, Math.abs(b.vx) + .45);
           b.vy += (b.y - (p[1].y + PADDLE_H / 2)) / 30;
         }
-        if (b.x < -20) { p[1].score++; b.x = W / 2; b.y = H / 2; b.vx = -6; b.vy = Math.random() > .5 ? 3 : -3; }
-        if (b.x > W + 20) { p[0].score++; b.x = W / 2; b.y = H / 2; b.vx = 6; b.vy = Math.random() > .5 ? 3 : -3; }
+        if (b.x < -20) {
+          p[1].score++;
+          setScore([p[0].score, p[1].score]);
+          b.x = W / 2; b.y = H / 2; b.vx = -6; b.vy = Math.random() > .5 ? 3 : -3;
+        }
+        if (b.x > W + 20) {
+          p[0].score++;
+          setScore([p[0].score, p[1].score]);
+          b.x = W / 2; b.y = H / 2; b.vx = 6; b.vy = Math.random() > .5 ? 3 : -3;
+        }
         if (p[0].score >= WIN || p[1].score >= WIN) {
           const w = p[0].score >= WIN ? 1 : 2;
           phase.current = 'over'; setState('over'); setWinner(w);
           trackGame('game_finish', 'pong-duel', { winner: w });
         }
-        setScore([p[0].score, p[1].score]);
       }
       ctx.clearRect(0, 0, W, H);
       ctx.fillStyle = '#071019'; ctx.fillRect(0, 0, W, H);

@@ -97,22 +97,32 @@ export function getCategories() {
 
 /** Return a stable, URL-safe anchor for sport navigation. */
 export function getSportAnchorId(sport: string) {
-  return `sport-${sport.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
+  return `sport-${normalizeCatalogValue(sport).replace(/[^a-z0-9]+/g, '-')}`;
 }
 
 export function getRelatedGames(currentId: string, limit = 4) {
   const current = getGameById(currentId);
-  if (!current || limit <= 0) return [];
+  const safeLimit = Number.isFinite(limit) ? Math.max(0, Math.floor(limit)) : 0;
+  if (!current || safeLimit === 0) return [];
+
   const currentIdNormalized = normalizeCatalogValue(current.id);
   const currentTag = normalizeCatalogValue(current.tag ?? '');
   const currentCategory = normalizeCatalogValue(current.category);
-  const pool = recentGames.filter((game) => normalizeCatalogValue(game.id) !== currentIdNormalized);
+  const currentSport = normalizeCatalogValue(current.sport ?? '');
+  const pool = recentGames
+    .map((game, index) => ({ game, index }))
+    .filter(({ game }) => normalizeCatalogValue(game.id) !== currentIdNormalized);
+
   const score = (game: GameCatalogItem) => {
     let value = 0;
-    if (current.sport && game.sport && normalizeCatalogValue(game.sport) === normalizeCatalogValue(current.sport)) value += 4;
+    if (currentSport && game.sport && normalizeCatalogValue(game.sport) === currentSport) value += 4;
     if (currentTag && normalizeCatalogValue(game.tag ?? '') === currentTag) value += 3;
     if (normalizeCatalogValue(game.category) === currentCategory) value += 2;
     return value;
   };
-  return [...pool].sort((a, b) => score(b) - score(a)).slice(0, limit);
+
+  return pool
+    .sort((a, b) => score(b.game) - score(a.game) || a.index - b.index)
+    .slice(0, safeLimit)
+    .map(({ game }) => game);
 }

@@ -52,3 +52,22 @@ export const recentGames: GameCatalogItem[] = [
   ...freshDropGames,
   ...multiplayerGames,
 ];
+
+/**
+ * Stable lookup helpers keep catalog consumers from duplicating filtering and
+ * make adding new games a data-only change. The returned arrays are fresh so
+ * callers cannot mutate the canonical registration lists.
+ */
+export const allGames: GameCatalogItem[] = recentGames;
+
+export function getGameById(id: string): GameCatalogItem | undefined {
+  return allGames.find((game) => game.id === id);
+}
+
+export function getGamesByCategory(category: string): GameCatalogItem[] {
+  return allGames.filter((game) => game.category === category);
+}
+
+export function getCategories(): string[] {
+  return [...new Set(allGames.map((game) => game.category))];
+}

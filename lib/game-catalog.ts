@@ -75,6 +75,13 @@ export function getGamesByTag(tag: string) {
   return recentGames.filter((game) => normalize(game.tag ?? '') === normalized);
 }
 
+/** Return sports for a focused sports shelf while preserving catalog order. */
+export function getGamesBySport(sport: string) {
+  const normalized = normalize(sport);
+  if (normalized === 'all') return getSportsGames();
+  return multiplayerGames.filter((game) => normalize(game.sport ?? '') === normalized);
+}
+
 export function getSportsGames() {
   return multiplayerGames.filter((game) => Boolean(game.sport));
 }

@@ -103,8 +103,10 @@ function ControlButton({ player, action, label, ariaLabel, onPress, onRelease }:
         if (e.key !== 'Enter' && e.key !== ' ') return;
         e.preventDefault();
         if (keyboardHeld.current) return;
-        keyboardHeld.current = true;
+        // Trigger the action before marking the keyboard key as held. This
+        // keeps the keyboard path consistent with pointer presses.
         press();
+        keyboardHeld.current = true;
       }}
       onKeyUp={(e) => {
         if (e.key !== 'Enter' && e.key !== ' ') return;

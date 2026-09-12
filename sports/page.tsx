@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import './sports.css';
-import { getSports, getSportsGames } from '../lib/game-catalog';
+import { getSportAnchorId, getSports, getSportsGames } from '../lib/game-catalog';
 
 export const metadata: Metadata = {
   title: '2 Player Sports Games — Play Together | GameHub',
@@ -28,7 +28,7 @@ export default function SportsPage() {
         <nav className="sports-nav" aria-label="Browse sports">
           <span className="sports-nav-label">BROWSE BY SPORT</span>
           {sportNames.map((sport) => (
-            <a key={sport} href={`#sport-${sport.toLowerCase()}`}>{sport}</a>
+            <a key={sport} href={`#${getSportAnchorId(sport)}`}>{sport}</a>
           ))}
         </nav>
 
@@ -36,10 +36,9 @@ export default function SportsPage() {
           <div className="section-heading"><div><p className="eyebrow">LOCAL MULTIPLAYER</p><h2 id="sports-list-title">Choose your game</h2></div><span>{sports.length} games</span></div>
           <div className="sports-grid">
             {sports.map((sport, index) => {
-              const sportId = sport.sport?.toLowerCase();
               const isFirstForSport = index === sports.findIndex((candidate) => candidate.sport === sport.sport);
               return (
-                <a className="sport-card" href={sport.href} key={sport.href} id={isFirstForSport ? `sport-${sportId}` : undefined}>
+                <a className="sport-card" href={sport.href} key={sport.href} id={isFirstForSport && sport.sport ? getSportAnchorId(sport.sport) : undefined}>
                   <div className="sport-icon" aria-hidden="true">{sport.emoji}</div>
                   <div className="sport-copy"><span className="sport-tag">{sport.sport}</span><h3>{sport.label}</h3><p>{sport.description ?? sport.meta}</p></div>
                   <span className="sport-play" aria-hidden="true">PLAY →</span>

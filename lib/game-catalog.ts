@@ -7,6 +7,10 @@ export type GameCatalogItem = {
   category: string;
   /** Optional multiplayer card label; kept in the catalog to avoid page-level duplication. */
   tag?: string;
+  /** Optional sport identity for the local sports discovery shelf. */
+  sport?: string;
+  /** Optional landing-page copy for discoverable game cards. */
+  description?: string;
 };
 
 /**
@@ -18,13 +22,13 @@ export const multiplayerGames: GameCatalogItem[] = [
   { id: 'tic-tac-toe', label: 'Tic Tac Toe', emoji: '⭕', meta: 'Classic · 2 players', href: '/gamehub/tic-tac-toe/', category: '2 Player', tag: 'CLASSIC' },
   { id: 'connect-four', label: 'Connect Four', emoji: '🔴', meta: 'Classic · 2 players', href: '/gamehub/connect-four/', category: '2 Player', tag: 'CLASSIC' },
   { id: 'pong-duel', label: 'Pong Duel', emoji: '🏓', meta: 'Arcade · 2 players', href: '/gamehub/pong-duel/', category: '2 Player', tag: 'CLASSIC' },
-  { id: 'hoop-duel', label: 'Hoop Duel', emoji: '🏀', meta: 'Basketball · 1P / 2P', href: '/gamehub/hoop-duel/', category: '2 Player', tag: 'ONE BUTTON' },
-  { id: 'football-random', label: 'Football Random', emoji: '⚽', meta: 'Football · 2 players', href: '/gamehub/football-random/', category: '2 Player', tag: 'ONE BUTTON' },
-  { id: 'mini-football', label: 'Mini Football', emoji: '⚽', meta: 'Football · 2 players', href: '/gamehub/mini-football/', category: '2 Player', tag: 'LOCAL' },
-  { id: 'volley-duel', label: 'Volley Duel', emoji: '🏐', meta: 'Volleyball · 2 players', href: '/gamehub/volley-duel/', category: '2 Player', tag: 'LOCAL' },
-  { id: 'tennis-duel', label: 'Tennis Duel', emoji: '🎾', meta: 'Tennis · 2 players', href: '/gamehub/tennis-duel/', category: '2 Player', tag: 'LOCAL' },
-  { id: 'air-hockey', label: 'Air Hockey', emoji: '🏒', meta: 'Hockey · 2 players', href: '/gamehub/air-hockey/', category: '2 Player', tag: 'LOCAL' },
-  { id: 'racing-duel', label: 'Racing Duel', emoji: '🏎️', meta: 'Racing · 2 players', href: '/gamehub/racing-duel/', category: '2 Player', tag: 'LOCAL' },
+  { id: 'hoop-duel', label: 'Hoop Duel', emoji: '🏀', meta: 'Basketball · 1P / 2P', href: '/gamehub/hoop-duel/', category: '2 Player', tag: 'ONE BUTTON', sport: 'BASKETBALL', description: 'Fast 1v1 basketball. Outscore your friend before the clock hits zero.' },
+  { id: 'football-random', label: 'Football Random', emoji: '⚽', meta: 'Football · 2 players', href: '/gamehub/football-random/', category: '2 Player', tag: 'ONE BUTTON', sport: 'FOOTBALL', description: 'Quick football action with simple controls and instant rematches.' },
+  { id: 'mini-football', label: 'Mini Football', emoji: '⚽', meta: 'Football · 2 players', href: '/gamehub/mini-football/', category: '2 Player', tag: 'LOCAL', sport: 'FOOTBALL', description: 'Simple 1v1 football with quick movement, shots and instant rematches.' },
+  { id: 'volley-duel', label: 'Volley Duel', emoji: '🏐', meta: 'Volleyball · 2 players', href: '/gamehub/volley-duel/', category: '2 Player', tag: 'LOCAL', sport: 'VOLLEYBALL', description: 'Keep the ball alive, find the opening and be first to take the set.' },
+  { id: 'tennis-duel', label: 'Tennis Duel', emoji: '🎾', meta: 'Tennis · 2 players', href: '/gamehub/tennis-duel/', category: '2 Player', tag: 'LOCAL', sport: 'TENNIS', description: 'A pick-up-and-play tennis rally built for two people on one device.' },
+  { id: 'air-hockey', label: 'Air Hockey', emoji: '🏒', meta: 'Hockey · 2 players', href: '/gamehub/air-hockey/', category: '2 Player', tag: 'LOCAL', sport: 'HOCKEY', description: 'Slide, defend and fire the puck. First to 7 wins the table.' },
+  { id: 'racing-duel', label: 'Racing Duel', emoji: '🏎️', meta: 'Racing · 2 players', href: '/gamehub/racing-duel/', category: '2 Player', tag: 'LOCAL', sport: 'RACING', description: 'Race three laps, manage your boost and beat your friend to the finish.' },
 ];
 
 export const freshDropGames: GameCatalogItem[] = [
@@ -52,3 +56,46 @@ export const recentGames: GameCatalogItem[] = [
   ...freshDropGames,
   ...multiplayerGames,
 ];
+
+const normalize = (value: string) => value.trim().toLowerCase();
+
+export function getGameById(id: string) {
+  const normalized = normalize(id);
+  return recentGames.find((game) => normalize(game.id) === normalized);
+}
+
+export function getGamesByCategory(category: string) {
+  const normalized = normalize(category);
+  if (normalized === 'all') return [...recentGames];
+  return recentGames.filter((game) => normalize(game.category) === normalized);
+}
+
+export function getGamesByTag(tag: string) {
+  const normalized = normalize(tag);
+  return recentGames.filter((game) => normalize(game.tag ?? '') === normalized);
+}
+
+export function getSportsGames() {
+  return multiplayerGames.filter((game) => Boolean(game.sport));
+}
+
+export function getCategories() {
+  return [...new Set(recentGames.map((game) => game.category))];
+}
+
+export function getRelatedGames(currentId: string, limit = 4) {
+  const current = getGameById(currentId);
+  if (!current || limit <= 0) return [];
+  const currentIdNormalized = normalize(current.id);
+  const currentTag = normalize(current.tag ?? '');
+  const currentCategory = normalize(current.category);
+  const pool = recentGames.filter((game) => normalize(game.id) !== currentIdNormalized);
+  const score = (game: GameCatalogItem) => {
+    let value = 0;
+    if (current.sport && game.sport && normalize(game.sport) === normalize(current.sport)) value += 4;
+    if (currentTag && normalize(game.tag ?? '') === currentTag) value += 3;
+    if (normalize(game.category) === currentCategory) value += 2;
+    return value;
+  };
+  return [...pool].sort((a, b) => score(b) - score(a)).slice(0, limit);
+}

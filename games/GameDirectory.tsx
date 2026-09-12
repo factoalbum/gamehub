@@ -5,6 +5,8 @@ import type { GameCatalogItem } from '../lib/game-catalog';
 
 type Props = { games: GameCatalogItem[]; groups: string[] };
 
+const normalize = (value: string) => value.trim().toLowerCase();
+
 export default function GameDirectory({ games, groups }: Props) {
   const [query, setQuery] = useState('');
   const [category, setCategory] = useState('All');
@@ -24,17 +26,18 @@ export default function GameDirectory({ games, groups }: Props) {
   }, []);
 
   const visible = useMemo(() => {
-    const needle = query.trim().toLowerCase();
+    const needle = normalize(query);
+    const selectedCategory = normalize(category);
     return games.filter(game => {
-      const matchesCategory = category === 'All' || game.category === category;
-      const matchesQuery = !needle || `${game.label} ${game.meta} ${game.category}`.toLowerCase().includes(needle);
+      const matchesCategory = category === 'All' || normalize(game.category) === selectedCategory;
+      const matchesQuery = !needle || `${game.label} ${game.meta} ${game.category} ${game.tag ?? ''}`.toLowerCase().includes(needle);
       return matchesCategory && matchesQuery;
     });
   }, [games, query, category]);
 
   const visibleByCategory = groups.map(group => ({
     group,
-    games: visible.filter(game => game.category === group),
+    games: visible.filter(game => normalize(game.category) === normalize(group)),
   })).filter(section => section.games.length);
 
   const clearFilters = () => {
@@ -85,8 +88,8 @@ export default function GameDirectory({ games, groups }: Props) {
             <button
               key={item}
               type="button"
-              className={category === item ? 'is-active' : ''}
-              aria-pressed={category === item}
+              className={normalize(category) === normalize(item) ? 'is-active' : ''}
+              aria-pressed={normalize(category) === normalize(item)}
               onClick={() => setCategory(item)}
             >
               {item}

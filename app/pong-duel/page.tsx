@@ -66,11 +66,17 @@ export default function PongDuel() {
       if ((k === 'enter' || k === ' ') && phase.current !== 'play') reset(true);
     };
     const u = (e: KeyboardEvent) => keys.current.delete(e.key.toLowerCase());
+    const clear = () => keys.current.clear();
     addEventListener('keydown', d);
     addEventListener('keyup', u);
+    addEventListener('blur', clear);
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) clear();
+    });
     return () => {
       removeEventListener('keydown', d);
       removeEventListener('keyup', u);
+      removeEventListener('blur', clear);
     };
   }, [reset]);
 
@@ -127,5 +133,5 @@ export default function PongDuel() {
     return () => { if (raf.current !== undefined) cancelAnimationFrame(raf.current); };
   }, []);
 
-  return <main className="pong-page"><div className="pong-shell"><header><a href="/gamehub/">← GAMEHUB</a><span>2 PLAYER · PONG</span><button onClick={() => reset(true)}>REMATCH</button></header><div className="pong-score"><div><small>P1</small><strong>{score[0]}</strong></div><b>VS</b><div><small>P2</small><strong>{score[1]}</strong></div></div><div className="pong-court"><canvas ref={canvas} width={W} height={H}/>{state !== 'play' && <div className="pong-overlay"><span>{state === 'ready' ? '🏓' : winner === 1 ? '🥇' : '🥈'}</span><h1>{state === 'ready' ? 'PONG DUEL' : `PLAYER ${winner} WINS`}</h1><p>First to {WIN}. Hold your movement key to defend.</p><button onClick={() => reset(true)}>{state === 'ready' ? 'START MATCH' : 'PLAY AGAIN'}</button></div>}</div><TwoPlayerTouchControls onPress={touchPress} onRelease={touchRelease} upLabel="UP" showDown actionLabel="READY" actionLabel2="READY" /><p className="pong-tip">P1: W/S · P2: ↑/↓ · Hold movement. Touch both sides at once.</p></div></main>;
+  return <main className="pong-page"><div className="pong-shell"><header><a href="/gamehub/">← GAMEHUB</a><span>2 PLAYER · PONG</span><button onClick={() => reset(true)}>REMATCH</button></header><div className="pong-score" aria-live="polite" aria-atomic="true"><div><small>P1</small><strong>{score[0]}</strong></div><b aria-hidden="true">VS</b><div><small>P2</small><strong>{score[1]}</strong></div></div><div className="pong-court"><canvas ref={canvas} width={W} height={H} aria-label="Pong Duel game board" role="img"/>{state !== 'play' && <div className="pong-overlay" role="status" aria-live="polite"><span aria-hidden="true">{state === 'ready' ? '🏓' : winner === 1 ? '🥇' : '🥈'}</span><h1>{state === 'ready' ? 'PONG DUEL' : `PLAYER ${winner} WINS`}</h1><p>First to {WIN}. Hold your movement key to defend.</p><button onClick={() => reset(true)}>{state === 'ready' ? 'START MATCH' : 'PLAY AGAIN'}</button></div>}</div><TwoPlayerTouchControls onPress={touchPress} onRelease={touchRelease} upLabel="UP" showDown actionLabel="READY" actionLabel2="READY" /><p className="pong-tip">P1: W/S · P2: ↑/↓ · Hold movement. Touch both sides at once.</p></div></main>;
 }

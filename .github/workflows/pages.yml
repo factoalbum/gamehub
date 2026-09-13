@@ -36,36 +36,7 @@ jobs:
         run: npm run build
 
       - name: Verify static export
-        run: |
-          # Core multiplayer and sports routes.
-          test -f out/pong-duel/index.html
-          test -f out/hoop-duel/index.html
-          test -f out/football-random/index.html
-          test -f out/mini-football/index.html
-          test -f out/volley-duel/index.html
-          test -f out/tennis-duel/index.html
-          test -f out/air-hockey/index.html
-          test -f out/racing-duel/index.html
-
-          # Current single-player landing pages. Keeping these explicit catches
-          # accidental route/export regressions before a Pages deployment.
-          test -f out/minesweeper/index.html
-          test -f out/tap-target/index.html
-          test -f out/brick-breaker/index.html
-          test -f out/brick-quest/index.html
-          test -f out/neon-dodge/index.html
-          test -f out/bubble-pop/index.html
-          test -f out/whack-attack/index.html
-          test -f out/falling-blocks/index.html
-          test -f out/sky-hopper/index.html
-          test -f out/asteroid-blaster/index.html
-          test -f out/alien-blaster/index.html
-
-          # Static hosting metadata.
-          test -f out/manifest.webmanifest
-          test -f out/robots.txt
-          test -f out/sitemap.xml
-          test -f out/favicon.svg
+        run: npm run verify:static
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3

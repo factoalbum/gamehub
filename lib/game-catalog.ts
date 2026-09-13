@@ -1,4 +1,5 @@
 import { normalizeCatalogValue } from './catalog-utils';
+import { validateGameCatalog } from './catalog-validation';
 
 export type GameCatalogItem = {
   id: string;
@@ -58,6 +59,9 @@ export const recentGames: GameCatalogItem[] = [
   ...freshDropGames,
   ...multiplayerGames,
 ];
+
+// Fail fast during builds/development if a catalog edit creates broken discovery data.
+validateGameCatalog({ recentGames });
 
 export function getGameById(id: string) {
   const normalized = normalizeCatalogValue(id);

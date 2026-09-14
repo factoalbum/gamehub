@@ -1,5 +1,47 @@
-export const metadata = { title: 'Privacy Policy | GameHub', description: 'GameHub privacy policy — learn what information GameHub stores and how it is used.' };
+export const metadata = {
+  title: 'Privacy Policy | GameHub',
+  description: 'GameHub privacy policy — learn what information GameHub stores and how it is used.'
+};
 
 export default function PrivacyPage() {
-  return <main className="legal-page"><a href="/gamehub/">← GameHub</a><h1>Privacy Policy</h1><p>Last updated: September 10, 2026</p><h2>What GameHub collects</h2><p>GameHub is designed to work without accounts. Game progress and personal bests may be stored locally in your browser. We do not require your name, email address, or account to play.</p><h2>Analytics</h2><p>GameHub may record anonymous gameplay events such as a game being opened, started, restarted, or finished so we can understand which games are useful and improve the experience. No account is required for this.</p><h2>Local storage</h2><p>Some games use browser local storage to remember scores, preferences, and recently played games. You can clear this data through your browser settings.</p><h2>Third-party services</h2><p>GameHub is hosted on GitHub Pages. Third-party services may process technical information according to their own policies.</p><h2>Contact</h2><p>For privacy questions, please contact the GameHub project owner through the project repository.</p></main>;
+  return (
+    <main className="legal-page">
+      <a href="/gamehub/">← GameHub</a>
+      <h1>Privacy Policy</h1>
+      <p>Last updated: September 14, 2026</p>
+
+      <h2>What GameHub collects</h2>
+      <p>
+        GameHub is designed to work without accounts. Game progress, personal bests, preferences, and recently played games may be stored locally in your browser. We do not require your name, email address, or account to play.
+      </p>
+
+      <h2>Analytics</h2>
+      <p>
+        GameHub has a provider-neutral analytics event system for events such as a game being opened, started, restarted, or finished. These events are currently handled locally by the site and are not sent to an external analytics provider unless a provider is explicitly configured in a future release.
+      </p>
+
+      <h2>Local storage</h2>
+      <p>
+        Some games use browser local storage to remember scores, preferences, and recently played games. You can clear this data through your browser settings. Clearing local storage may reset saved game progress and personal bests.
+      </p>
+
+      <h2>Advertising and cookies</h2>
+      <p>
+        GameHub does not currently serve Google AdSense advertisements. If advertising is enabled in the future, Google and its advertising partners may use cookies or similar technologies to serve and measure advertisements, including personalized advertising based on a visitor&apos;s prior visits to this or other websites, subject to applicable settings and consent requirements.
+      </p>
+      <p>
+        When applicable, visitors can manage personalized advertising through Google Ads Settings and may also use available third-party advertising opt-out tools. GameHub will update this policy and provide any legally required consent controls before advertising is enabled for users who require them.
+      </p>
+
+      <h2>Third-party services</h2>
+      <p>
+        GameHub is hosted on GitHub Pages. Third-party services may process technical information according to their own policies. If additional third-party services are introduced, this policy will be updated where appropriate.
+      </p>
+
+      <h2>Contact</h2>
+      <p>
+        For privacy questions, please contact the GameHub project owner through the project repository.
+      </p>
+    </main>
+  );
 }

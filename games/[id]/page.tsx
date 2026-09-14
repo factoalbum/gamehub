@@ -16,10 +16,16 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
   const { id } = await params;
   const game = games[id as keyof typeof games];
-  if (!game) return { title: 'Game not found | GameHub' };
+  if (!game) return { title: 'Game not found | GameHub', robots: { index: false, follow: true } };
   return {
     title: `${game.title} — Free Online Game | GameHub`,
     description: `${game.description} Play ${game.title} free in your browser on GameHub.`,
+    alternates: { canonical: `/games/${id}/` },
+    openGraph: {
+      title: `${game.title} — Free Online Game | GameHub`,
+      description: `${game.description} Play ${game.title} free in your browser on GameHub.`,
+      url: `https://factoalbum.github.io/gamehub/games/${id}/`,
+    },
   };
 }
 
@@ -31,7 +37,7 @@ export default async function GameLanding({ params }: { params: Promise<{ id: st
   return <main style={{ minHeight: '100vh', padding: 'clamp(32px, 7vw, 88px) 20px', background: '#07090d', color: '#f7f9fc' }}>
     <article style={{ maxWidth: 820, margin: '0 auto', background: '#0f131b', border: '1px solid #232b3a', borderRadius: 28, padding: 'clamp(28px, 6vw, 64px)', boxShadow: '0 24px 80px rgba(0,0,0,.28)' }}>
       <a href="/gamehub/" style={{ color: '#b7f34a', textDecoration: 'none', fontWeight: 800 }}>← GameHub</a>
-      <div style={{ fontSize: 72, marginTop: 34 }}>{game.emoji}</div>
+      <div style={{ fontSize: 72, marginTop: 34 }} aria-hidden="true">{game.emoji}</div>
       <p style={{ textTransform: 'uppercase', letterSpacing: '.14em', fontSize: 12, fontWeight: 800, opacity: .65 }}>{game.category} · FREE · NO DOWNLOAD</p>
       <h1 style={{ fontSize: 'clamp(42px, 8vw, 76px)', lineHeight: .95, margin: '14px 0 22px' }}>{game.title}</h1>
       <p style={{ maxWidth: 650, fontSize: 19, lineHeight: 1.65, opacity: .78 }}>{game.description}</p>

@@ -27,10 +27,13 @@ export default function PrivacyPage() {
 
       <h2>Advertising and cookies</h2>
       <p>
-        GameHub does not currently serve Google AdSense advertisements. If advertising is enabled in the future, Google and its advertising partners may use cookies or similar technologies to serve and measure advertisements, including personalized advertising based on a visitor&apos;s prior visits to this or other websites, subject to applicable settings and consent requirements.
+        GameHub does not currently serve Google AdSense advertisements. If advertising is enabled in the future, Google and other third-party advertising vendors may use cookies or similar technologies to serve and measure advertisements, including personalized advertising based on a visitor&apos;s prior visits to this or other websites, subject to applicable settings and consent requirements.
       </p>
       <p>
-        When applicable, visitors can manage personalized advertising through Google Ads Settings and may also use available third-party advertising opt-out tools. GameHub will update this policy and provide any legally required consent controls before advertising is enabled for users who require them.
+        Google&apos;s use of advertising cookies enables Google and its partners to serve ads based on visits to GameHub and other sites. Where applicable, visitors can opt out of personalized advertising through <a href="https://adssettings.google.com/" rel="noopener noreferrer">Google Ads Settings</a>. Visitors may also review available third-party advertising opt-out information through <a href="https://optout.aboutads.info/" rel="noopener noreferrer">AboutAds.info</a>.
+      </p>
+      <p>
+        Before advertising is enabled for users who require consent, GameHub will provide the applicable consent controls and update this policy as required by Google and applicable privacy laws.
       </p>
 
       <h2>Third-party services</h2>

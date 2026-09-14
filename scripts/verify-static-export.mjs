@@ -13,6 +13,14 @@ const routes = [
   '/privacy/',
   '/terms/',
 
+  // Crawlable SEO landing pages for classic games.
+  '/games/reflex/',
+  '/games/memory-grid/',
+  '/games/snake/',
+  '/games/number-merge/',
+  '/games/color-match/',
+  '/games/stack-tower/',
+
   // Local multiplayer and sports.
   '/tic-tac-toe/',
   '/connect-four/',
@@ -46,7 +54,8 @@ const assets = [
   '/favicon.svg',
 ];
 
-const missing = [...routes.map((route) => join(outDir, route, 'index.html')),
+const missing = [
+  ...routes.map((route) => join(outDir, route, 'index.html')),
   ...assets.map((asset) => join(outDir, asset)),
 ].filter((path) => !existsSync(path));
 

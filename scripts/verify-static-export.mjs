@@ -4,8 +4,8 @@ import { join } from 'node:path';
 const outDir = join(process.cwd(), 'out');
 
 const routes = [
-  // Platform and discovery pages.
   '/',
+  '/about/',
   '/games/',
   '/multiplayer/',
   '/sports/',
@@ -13,7 +13,6 @@ const routes = [
   '/privacy/',
   '/terms/',
 
-  // Crawlable SEO landing pages for classic games.
   '/games/reflex/',
   '/games/memory-grid/',
   '/games/snake/',
@@ -21,7 +20,6 @@ const routes = [
   '/games/color-match/',
   '/games/stack-tower/',
 
-  // Local multiplayer and sports.
   '/tic-tac-toe/',
   '/connect-four/',
   '/pong-duel/',
@@ -33,7 +31,6 @@ const routes = [
   '/air-hockey/',
   '/racing-duel/',
 
-  // Single-player game pages.
   '/minesweeper/',
   '/tap-target/',
   '/brick-breaker/',

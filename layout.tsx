@@ -9,6 +9,7 @@ import HomePromos from './HomePromos';
 import GameUrlBridge from './GameUrlBridge';
 import ShareScore from './ShareScore';
 import RecentTracker from './RecentTracker';
+import SiteInfoLinks from './SiteInfoLinks';
 
 const siteUrl = 'https://factoalbum.github.io/gamehub';
 
@@ -37,5 +38,5 @@ const websiteSchema = {
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return <html lang="en"><body><GameUrlBridge /><Suspense fallback={null}><RecentTracker /></Suspense>{children}<HomePromos /><ShareScore /><script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }} /></body></html>;
+  return <html lang="en"><body><GameUrlBridge /><Suspense fallback={null}><RecentTracker /></Suspense>{children}<HomePromos /><ShareScore /><SiteInfoLinks /><script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }} /></body></html>;
 }
